@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1f3a4d">
+<title>批量报销资料整理｜流程演示</title>
+<meta name="description" content="一批票据，整理成可核对的报销明细（虚构数据 · 流程演示）">
+<style>
+:root{--navy:#1f3a4d;--navy2:#2a4b61;--teal:#2f6f8f;--amber:#b86e1f;--amberbg:#fbf3ea;--green:#3e7d5a;--greenbg:#edf5f0;--ink:#1f2a33;--slate:#5b6b7a;--mist:#f2f5f7;--line:#dde3e8;--red:#a8432f}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#fff;color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif}
+html[lang=ja] body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans CJK JP",sans-serif}
+button{font:inherit;cursor:pointer}
+button:disabled{cursor:default;opacity:.55}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px}
+header.top{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:8px;height:52px}
+.brand{font-weight:700;color:var(--navy);font-size:15px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;flex:none}
+.lang button{border:0;background:#fff;color:var(--slate);padding:6px 12px;font-size:14px;min-height:34px}
+.lang button[aria-pressed=true]{background:var(--navy);color:#fff}
+.badge{display:inline-block;font-size:12.5px;font-weight:600;color:var(--amber);border:1px solid var(--amber);border-radius:999px;padding:2px 10px;background:#fff}
+h1{white-space:pre-line;font-size:26px;line-height:1.3;margin:10px 0 6px;color:var(--navy)}
+h2{font-size:20px;line-height:1.35;margin:0 0 6px;color:var(--navy)}
+p{margin:0 0 10px}
+.sub{color:var(--slate);font-size:15px}
+.small{font-size:13px;color:var(--slate)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:12px;background:var(--navy);color:#fff;font-weight:700;font-size:17px;padding:13px 20px;min-height:50px;width:100%}
+.btn.sec{background:#fff;color:var(--navy);border:1.5px solid var(--navy);font-size:15px;min-height:44px;padding:10px 14px;font-weight:600}
+.btn.ok{background:var(--green)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>*{flex:1 1 180px}
+section{padding:18px 0 22px}
+.card{background:var(--mist);border-radius:14px;padding:14px}
+/* hero */
+.ba{display:grid;grid-template-columns:1fr auto 1.25fr;gap:8px;align-items:center;margin:12px 0 14px}
+.ba .side{background:var(--mist);border-radius:14px;padding:10px;min-height:150px}
+.ba .side h3{margin:0 0 6px;font-size:13px;color:var(--slate);font-weight:600}
+.pile{position:relative;height:110px}
+.pile i{position:absolute;width:52px;height:68px;background:#fff;border:1px solid #cfd8df;border-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.pile i::before,.pile i::after{content:"";position:absolute;left:8px;right:8px;height:3px;background:#d9e0e6;top:14px;box-shadow:0 8px 0 #d9e0e6,0 16px 0 #d9e0e6}
+.pile i::after{top:auto;bottom:10px;left:22px;box-shadow:none;background:#9fb0bd}
+.arrow{font-size:22px;color:var(--teal);font-weight:700}
+.mini{list-style:none;margin:0;padding:0;font-size:12.5px}
+.mini li{display:flex;justify-content:space-between;gap:6px;border-bottom:1px dashed #cfd8df;padding:3px 0}
+.mini li.warn{color:var(--amber);font-weight:600}
+.mini li.tot{border:0;font-weight:700;color:var(--navy);padding-top:6px}
+.points{display:grid;gap:8px;margin:14px 0 16px;padding:0;list-style:none}
+.points li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.points b{flex:none;width:24px;height:24px;border-radius:50%;background:var(--teal);color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+/* stepper */
+.steps{display:flex;gap:4px;margin:12px 0 16px;padding:0;list-style:none}
+.steps li{flex:1;text-align:center;font-size:11.5px;color:var(--slate);line-height:1.3}
+.steps li::before{content:"";display:block;height:5px;border-radius:3px;background:var(--line);margin-bottom:5px}
+.steps li.done::before{background:var(--teal)}
+.steps li.cur{color:var(--navy);font-weight:700}
+.steps li.cur::before{background:var(--amber)}
+/* files */
+.folder{border:1.5px solid var(--line);border-radius:14px;overflow:hidden}
+.folder .fh{display:flex;align-items:center;gap:8px;background:var(--mist);padding:10px 14px;font-weight:700;color:var(--navy)}
+.ficon{width:22px;height:17px;border-radius:3px;background:#e7b45a;position:relative;flex:none}
+.ficon::before{content:"";position:absolute;left:0;top:-4px;width:10px;height:5px;border-radius:2px 2px 0 0;background:#e7b45a}
+.flist{list-style:none;margin:0;padding:0}
+.flist li{display:flex;gap:10px;align-items:center;padding:10px 14px;border-top:1px solid var(--line)}
+.ext{flex:none;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;background:var(--teal)}
+.ext.pdf{background:#a8432f}.ext.png{background:#6b5ba8}
+.fname{font-weight:600;word-break:break-all;font-size:15px}
+.fdesc{font-size:13px;color:var(--slate)}
+/* records */
+.note{display:flex;gap:8px;align-items:flex-start;background:#fff;border:1px dashed var(--amber);border-radius:10px;padding:8px 10px;font-size:13px;color:var(--amber);margin:10px 0}
+.recs{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.rec{display:grid;grid-template-columns:28px 1fr auto;gap:4px 10px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.rec .no{width:26px;height:26px;border-radius:50%;background:var(--mist);color:var(--slate);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;grid-row:span 2}
+.rec .m{font-weight:600}
+.rec .amt{font-weight:700;text-align:right;white-space:nowrap}
+.rec .meta{font-size:12.5px;color:var(--slate)}
+.st{justify-self:end;font-size:12px;font-weight:700;border-radius:999px;padding:1px 8px;white-space:nowrap}
+.st.read{color:var(--green);background:var(--greenbg)}
+.st.warn{color:var(--amber);background:var(--amberbg)}
+.st.done{color:var(--teal);background:#e8f1f5}
+.st.excl{color:#fff;background:var(--slate)}
+.rec.flag{border-color:var(--amber);background:var(--amberbg)}
+.rec.excluded{opacity:.55}
+.rec.excluded .m,.rec.excluded .amt{text-decoration:line-through}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:#fff}
+summary{padding:12px 14px;font-weight:600;color:var(--navy);cursor:pointer;min-height:44px}
+details .in{padding:0 14px 14px}
+.map{display:grid;gap:10px}
+.mapi{border-left:3px solid var(--teal);padding-left:10px}
+.mapi .fname{font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{font-size:12.5px;background:var(--mist);border-radius:6px;padding:2px 8px}
+/* receipts visuals */
+.rcpts{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.rcpt{background:#fffdf8;border:1px solid #d9d2c3;border-radius:4px;padding:6px 8px;font-size:11.5px;line-height:1.45;min-width:104px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.rcpt b{display:block;font-size:12px}
+.rcpt .blur{filter:blur(1.4px);color:#555}
+/* confirm */
+.cf{display:grid;gap:10px}
+.cfi{background:#fff;border:1.5px solid var(--amber);border-radius:14px;padding:12px}
+.cfi.ok{border-color:var(--green);background:var(--greenbg)}
+.cfi h3{margin:0 0 4px;font-size:16px;color:var(--navy)}
+.cfi .q{font-size:14px;color:var(--slate);margin-bottom:8px}
+.cfi .res{font-size:14px;color:var(--green);font-weight:600}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.opts button{flex:1 1 140px;border:1.5px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;padding:9px 10px;font-size:14.5px;min-height:44px;font-weight:600}
+.opts button.alt{border-color:var(--line);color:var(--slate);font-weight:500}
+.progress{font-weight:700;color:var(--navy);margin:8px 0}
+/* result */
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.sum div{background:var(--navy);color:#fff;border-radius:14px;padding:12px}
+.sum small{display:block;color:#c9d6e0;font-size:12.5px}
+.sum strong{font-size:24px;line-height:1.2}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+.tbl th{font-size:12.5px;color:var(--slate);font-weight:600}
+.tbl td.r,.tbl th.r{text-align:right;white-space:nowrap}
+.tbl tfoot td{font-weight:700;color:var(--navy);border-bottom:0}
+.tbl .src{font-size:12px;color:var(--slate)}
+.closing{background:var(--mist);border-radius:14px;padding:14px;margin-top:16px}
+footer{border-top:1px solid var(--line);margin-top:24px;padding:14px 0 28px;font-size:12.5px;color:var(--slate)}
+.hidden{display:none!important}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:999px;font-size:14px;z-index:9;max-width:90vw}
+@media (max-width:420px){h1{font-size:22px}.ba{gap:5px}.ba .side{padding:8px;min-height:0}.pile{height:92px;transform:scale(.82);transform-origin:left top}.mini{font-size:11.5px}.mini li{padding:2px 0}.arrow{font-size:18px}.sum strong{font-size:21px}.tbl{font-size:13px}.tbl .hide-s{display:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="brand" data-t="brand"></div>
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-lang="zh">中文</button>
+    <button type="button" data-lang="ja">日本語</button>
+  </div>
+</div></header>
+<main class="wrap" id="app"><p class="sub" style="padding:24px 0">正在加载演示……如长时间未显示，请刷新页面。<br>デモを読み込んでいます。表示されない場合は再読み込みしてください。</p><noscript><p style="padding:24px 0">请启用 JavaScript 后查看演示。／デモの表示には JavaScript を有効にしてください。</p></noscript></main>
+<footer><div class="wrap" id="foot"></div></footer>
+<div class="toast hidden" id="toast" role="status"></div>
+<script>
+(function(){
+"use strict";
+var T={
+zh:{
+ htmlLang:"zh-CN",title:"批量报销资料整理｜流程演示",brand:"批量报销资料整理",
+ badge:"虚构数据 · 流程演示",
+ h1:"批量整理票据，\n减少逐张上传和录入",
+ lead:"一批账单、收据一次交进来，整理成可核对的报销明细；需要您确认的地方，单独列出来。",
+ before:"处理前：一叠票据",miniTot:"7条合计",after:"处理后：报销明细",
+ p1:"一次放入多个文件（照片、PDF）",p2:"自动拆成单张，提取日期、商家、金额",p3:"只把需要确认的项目单独列出",
+ start:"用样例体验（约1分钟）",
+ heroNote:"无需注册或上传任何文件，使用虚构样例演示。",
+ steps:["选择文件","批量整理","查看结果","确认事项","最终明细"],
+ s1h:"第1步：选择样例文件夹",s1p:"假设月底手边有这5个文件，其中一张照片里拍了3张收据。",
+ folder:"9月票据（虚构样例）",
+ run:"批量整理这5个文件",
+ s2h:"整理结果：5个文件 → 8条记录",s2p:"已拆分并提取日期、商家、金额。标出的4项需要重点确认。",
+ simNote:"以下为固定样例的模拟结果，用于演示流程，并非实时识别。",
+ reviewNote:"“已读取”只表示信息已提取，同样需要负责人复核；标出的项目需重点处理。",
+ showSrc:"查看原始票据与记录的对应关系",
+ toConfirm:"处理待确认事项（4项）",
+ s3h:"确认事项：4项",s3p:"每项点一下即可完成样例确认。实际使用时，由负责人对照原件判断。",
+ allOk:"全部按样例确认",
+ progress:function(n){return "已确认 "+n+" / 4";},
+ toFinal:"查看最终明细",
+ c2h:"#2 咖啡店 880日元：缺用途",c2q:"请补写用途",c2a:"内部会议茶点",c2b:"客户来访茶点",
+ c3h:"#3 停车场：金额不清",c3q:"票据上的金额印得较淡，读取结果为“600？”。请对照原件确认。",c3a:"对照原件，确认为600日元",
+ c7h:"#7 餐厅 18,700日元：缺用途和参加人",c7q:"餐费需按规定写明用途和参加人",c7a:"客户会餐｜客户A公司2人、本公司1人",
+ c8h:"#8 网店 12,800日元：疑似与#6重复",c8q:"#6 是同一笔订单的PDF，#8 是截图。日期、商家、金额相同。",c8a:"确认为同一笔，排除#8",c8b:"不是同一笔，保留",
+ c8keepWarn:"样例中#8与#6为同一笔订单。为保持示例一致，请选择排除。",
+ doneTag:"已确认",
+ s4h:"最终明细：7条，合计 38,360日元",s4p:"已核对金额、补齐缺项，并确认排除重复票据。提交前仍由负责人整体复核。",
+ k1:"明细条数",k2:"合计（日元）",
+ th:["#","日期","商家","用途","金额（日元）","来源文件"],total:"合计",
+ excl:"已排除：#8 网店 12,800日元（与#6为同一笔订单）",
+ deliver:"交付内容：报销明细、对应票据索引、待确认事项处理记录。",
+ csv:"下载样例明细（CSV）",again:"重新体验",pdf:"查看详细方案（PDF，中文）",
+ closing:"这个流程能否用在您那边，可以结合您现在使用的软件和票据形式一起确认。",
+ foot:"本页为流程演示：所有文件、商家、金额均为虚构，金额单位为日元（JPY）。未连接任何真实系统，不处理真实文件。",
+ st:{readReview:"已读取（提交前复核）",read:"已读取",warn2:"缺用途",warn3:"待核对金额",warn7:"缺用途·参加人",warn8:"疑似与#6重复",done:"已确认",excl:"已排除"},
+ yen:"日元",
+ csvHead:["编号","日期","商家","用途","参加人","金额（日元）","来源文件","状态"],
+ csvName:"样例报销明细_虚构数据.csv",csvToast:"已下载虚构样例 CSV",
+ needAll:"还有未确认的事项",
+ noUse:"—"
+},
+ja:{
+ htmlLang:"ja",title:"経費精算資料のまとめ処理｜デモ",brand:"経費精算資料のまとめ処理",
+ badge:"架空データ・流れのデモ",
+ h1:"領収書をまとめて整理。\n1枚ずつの登録・入力を減らします",
+ lead:"月末にたまった請求書・領収書をまとめて取り込み、確認しやすい経費明細に整えます。確認が必要な点だけを分けてお示しします。",
+ before:"処理前：領収書の束",miniTot:"7件 合計",after:"処理後：経費明細",
+ p1:"複数のファイル（写真・PDF）をまとめて取り込み",p2:"1枚ずつに分け、日付・支払先・金額を読み取り",p3:"確認が必要な項目だけを一覧に",
+ start:"サンプルで試す（約1分）",
+ heroNote:"登録やファイルのアップロードは不要です。架空のサンプルで流れをお見せします。",
+ steps:["ファイル選択","まとめて整理","結果確認","要確認事項","最終明細"],
+ s1h:"ステップ1：サンプルのフォルダを選択",s1p:"月末に手元にある5つのファイルを想定しています。うち1枚の写真には領収書が3枚写っています。",
+ folder:"9月分 領収書（架空サンプル）",
+ run:"この5ファイルをまとめて整理",
+ s2h:"整理結果：5ファイル → 8件",s2p:"1枚ずつに分け、日付・支払先・金額を読み取りました。印の付いた4件は重点的な確認が必要です。",
+ simNote:"以下は固定サンプルによる処理イメージです。実際の読み取り結果ではありません。",
+ reviewNote:"「読取済」は情報を読み取ったという意味です。こちらもご担当者の確認が必要です。印の付いた項目は特にご確認ください。",
+ showSrc:"元の領収書と各明細の対応を見る",
+ toConfirm:"要確認事項を処理する（4件）",
+ s3h:"要確認事項：4件",s3p:"各項目をタップするとサンプルとして確認済みになります。実際の運用では、ご担当者が原本と照らし合わせて判断します。",
+ allOk:"サンプルどおりにすべて確認",
+ progress:function(n){return "確認済み "+n+" / 4";},
+ toFinal:"最終明細を見る",
+ c2h:"#2 カフェ 880円：用途の記入なし",c2q:"用途をご記入ください",c2a:"社内打ち合わせ用の飲料",c2b:"来客用の飲料",
+ c3h:"#3 駐車場：金額が不鮮明",c3q:"印字が薄く、「600？」と読み取っています。原本でご確認ください。",c3a:"原本と照合し、600円で確定",
+ c7h:"#7 レストラン 18,700円：用途・参加者の記入なし",c7q:"会食費は社内規程に沿って用途と参加者の記入が必要です",c7a:"取引先との会食｜取引先A社2名・当社1名",
+ c8h:"#8 ネットショップ 12,800円：#6と重複の可能性",c8q:"#6は同じ注文のPDF、#8はその画面キャプチャです。日付・支払先・金額が一致しています。",c8a:"同一の取引のため、#8を除外",c8b:"別の取引として残す",
+ c8keepWarn:"このサンプルでは#8と#6は同じ注文です。例をそろえるため、除外を選んでください。",
+ doneTag:"確認済み",
+ s4h:"最終明細：7件、合計 38,360円",s4p:"金額の照合、記入漏れの補完、重複の除外が済みました。提出前に、ご担当者が全体を改めてご確認ください。",
+ k1:"明細件数",k2:"合計（円）",
+ th:["#","日付","支払先","用途","金額（円）","元ファイル"],total:"合計",
+ excl:"除外：#8 ネットショップ 12,800円（#6と同一の注文）",
+ deliver:"お渡しする内容：経費明細、領収書との対応一覧、要確認事項の処理記録。",
+ csv:"サンプル明細をダウンロード（CSV）",again:"もう一度試す",pdf:"詳しい資料を見る（PDF・中国語）",
+ closing:"貴社でお使いのソフトや領収書の形式に合うかどうか、あわせて確認できればと思います。",
+ foot:"このページは処理の流れを示すデモです。ファイル・支払先・金額はすべて架空で、金額の単位は日本円（JPY）です。実際のシステムには接続しておらず、実際のファイルも処理しません。",
+ st:{readReview:"読取済（提出前に要確認）",read:"読取済",warn2:"用途未記入",warn3:"金額要確認",warn7:"用途・参加者未記入",warn8:"#6と重複の可能性",done:"確認済み",excl:"除外"},
+ yen:"円",
+ csvHead:["No.","日付","支払先","用途","参加者","金額（円）","元ファイル","状態"],
+ csvName:"サンプル経費明細_架空データ.csv",csvToast:"架空サンプルのCSVをダウンロードしました",
+ needAll:"未確認の項目があります",
+ noUse:"—"
+}};
+/* 两种语言共用的数据 */
+var FILES=[
+ {id:"f1",ext:"jpg",name:{zh:"收据合拍.jpg",ja:"領収書まとめ撮り.jpg"},desc:{zh:"1张照片，含3张收据",ja:"写真1枚に領収書3枚"},recs:[1,2,3]},
+ {id:"f2",ext:"pdf",name:{zh:"交通费明细.pdf",ja:"交通費明細.pdf"},desc:{zh:"2页",ja:"2ページ"},recs:[4,5]},
+ {id:"f3",ext:"pdf",name:{zh:"网购票据.pdf",ja:"ネット購入_領収書.pdf"},desc:{zh:"1页",ja:"1ページ"},recs:[6]},
+ {id:"f4",ext:"jpg",name:{zh:"餐费收据.jpg",ja:"会食_領収書.jpg"},desc:{zh:"1张",ja:"1枚"},recs:[7]},
+ {id:"f5",ext:"png",name:{zh:"网购票据截图.png",ja:"ネット購入_画面キャプチャ.png"},desc:{zh:"与网购票据为同一笔",ja:"ネット購入の領収書と同じ取引"},recs:[8]}
+];
+var RECS=[
+ {n:1,d:"9/03",m:{zh:"文具店",ja:"文具店"},a:1980,f:"f1",st:"read",use:{zh:"办公用品",ja:"事務用品"}},
+ {n:2,d:"9/03",m:{zh:"咖啡店",ja:"カフェ"},a:880,f:"f1",st:"warn2",use:null},
+ {n:3,d:"9/05",m:{zh:"停车场",ja:"駐車場"},a:600,f:"f1",st:"warn3",use:{zh:"外出停车",ja:"外出時の駐車"},unsure:true},
+ {n:4,d:"9/08",m:{zh:"交通（IC卡）",ja:"交通費（ICカード）"},a:1240,f:"f2",st:"read",use:{zh:"外出交通",ja:"外出時の交通費"}},
+ {n:5,d:"9/15",m:{zh:"交通（IC卡）",ja:"交通費（ICカード）"},a:2160,f:"f2",st:"read",use:{zh:"外出交通",ja:"外出時の交通費"}},
+ {n:6,d:"9/12",m:{zh:"网店",ja:"ネットショップ"},a:12800,f:"f3",st:"read",use:{zh:"办公设备",ja:"事務機器"}},
+ {n:7,d:"9/20",m:{zh:"餐厅",ja:"レストラン"},a:18700,f:"f4",st:"warn7",use:null},
+ {n:8,d:"9/12",m:{zh:"网店",ja:"ネットショップ"},a:12800,f:"f5",st:"warn8",use:{zh:"办公设备",ja:"事務機器"}}
+];
+var ORDER=["c2","c3","c7","c8"];
+/* 状态：切换语言时保留 */
+var S={step:0,conf:{}};
+var lang="zh";
+function q(sel){return document.querySelector(sel);}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+function fmt(n){return n.toLocaleString("en-US");}
+function fullDate(d){var p=d.split("/");return "2026/"+("0"+p[0]).slice(-2)+"/"+("0"+p[1]).slice(-2);}
+function L(){return T[lang];}
+function fileOf(id){for(var i=0;i<FILES.length;i++)if(FILES[i].id===id)return FILES[i];}
+function nConf(){var c=0;ORDER.forEach(function(k){if(S.conf[k])c++;});return c;}
+function useOf(r){
+ var t=L();
+ if(r.n===2&&S.conf.c2)return S.conf.c2==="a"?t.c2a:t.c2b;
+ if(r.n===7&&S.conf.c7)return t.c7a.split("｜")[0];
+ return r.use?r.use[lang]:t.noUse;
+}
+function attendees(r){if(r.n===7&&S.conf.c7)return L().c7a.split("｜")[1];return "";}
+function statusOf(r){
+ var t=L();
+ var map={2:"c2",3:"c3",7:"c7",8:"c8"};var k=map[r.n];
+ if(k&&S.conf[k])return r.n===8?{c:"excl",x:t.st.excl}:{c:"done",x:t.st.done};
+ if(r.st==="read")return {c:"read",x:t.st.read};
+ return {c:"warn",x:t.st[r.st]};
+}
+function finalRecs(){return RECS.filter(function(r){return r.n!==8;});}
+function total(){return finalRecs().reduce(function(s,r){return s+r.a;},0);}
+function stepper(cur){
+ var t=L();return '<ol class="steps" aria-label="progress">'+t.steps.map(function(s,i){
+  var c=i<cur?"done":(i===cur?"cur":"");return '<li class="'+c+'">'+esc(s)+'</li>';}).join("")+'</ol>';
+}
+function amtText(r){return (r.unsure&&!S.conf.c3)?"600？":fmt(r.a);}
+function recList(){
+ var t=L();
+ return '<ul class="recs">'+RECS.map(function(r){
+  var st=statusOf(r);var flag=st.c==="warn";var ex=st.c==="excl";
+  return '<li class="rec'+(flag?" flag":"")+(ex?" excluded":"")+'"><span class="no">'+r.n+'</span>'+
+  '<span class="m">'+esc(r.m[lang])+'</span><span class="amt">'+amtText(r)+' '+t.yen+'</span>'+
+  '<span class="meta">'+r.d+' · '+esc(fileOf(r.f).name[lang])+'</span><span class="st '+st.c+'">'+esc(st.x)+'</span></li>';
+ }).join("")+'</ul>';
+}
+function receiptVisual(f){
+ var t=L();
+ return '<div class="rcpts">'+f.recs.map(function(n){
+  var r=RECS[n-1];
+  var amt=r.unsure?'<span class="blur">600</span> '+t.yen:fmt(r.a)+' '+t.yen;
+  return '<div class="rcpt"><b>'+esc(r.m[lang])+'</b>'+fullDate(r.d)+'<br>'+amt+'<br><span class="small">→ #'+n+'</span></div>';
+ }).join("")+'</div>';
+}
+function srcMap(){
+ var t=L();
+ return '<details id="srcmap"><summary>'+esc(t.showSrc)+'</summary><div class="in"><div class="map">'+FILES.map(function(f){
+  return '<div class="mapi"><div class="fname">'+esc(f.name[lang])+'</div><div class="fdesc">'+esc(f.desc[lang])+'</div>'+receiptVisual(f)+'</div>';
+ }).join("")+'</div><p class="small" style="margin-top:10px">'+esc(t.simNote)+'</p></div></details>';
+}
+function render(){
+ var t=L();var h="";
+ document.documentElement.lang=t.htmlLang;document.title=t.title;
+ Array.prototype.forEach.call(document.querySelectorAll("[data-t]"),function(el){el.textContent=t[el.getAttribute("data-t")];});
+ Array.prototype.forEach.call(document.querySelectorAll("[data-lang]"),function(b){b.setAttribute("aria-pressed",b.getAttribute("data-lang")===lang?"true":"false");});
+ q("#foot").textContent=t.foot;
+ if(S.step===0){
+  h+='<section><span class="badge">'+esc(t.badge)+'</span><h1>'+esc(t.h1)+'</h1><p class="sub">'+esc(t.lead)+'</p>'+
+  '<div class="ba" aria-hidden="true"><div class="side"><h3>'+esc(t.before)+'</h3><div class="pile">'+
+  [[4,8,-8],[30,2,6],[14,30,-3],[44,34,9],[22,54,2]].map(function(p){return '<i style="left:'+p[0]+'px;top:'+p[1]+'px;transform:rotate('+p[2]+'deg)"></i>';}).join("")+
+  '</div></div><div class="arrow">→</div><div class="side"><h3>'+esc(t.after)+'</h3><ul class="mini">'+
+  [[1,"1,980"],[6,"12,800"],[7,"18,700"]].map(function(x){var r=RECS[x[0]-1];return '<li><span>'+esc(r.m[lang])+'</span><span>'+x[1]+'</span></li>';}).join("")+
+  '<li class="warn"><span>'+esc(t.st.warn3)+'</span><span>600？</span></li><li><span>…</span><span></span></li><li class="tot"><span>'+esc(t.miniTot)+'</span><span>38,360 '+t.yen+'</span></li></ul></div></div>'+
+  '<button class="btn" type="button" data-act="start">'+esc(t.start)+'</button><p class="small" style="margin-top:8px">'+esc(t.heroNote)+'</p>'+
+  '<ul class="points"><li><b>1</b>'+esc(t.p1)+'</li><li><b>2</b>'+esc(t.p2)+'</li><li><b>3</b>'+esc(t.p3)+'</li></ul></section>';
+ } else if(S.step===1){
+  h+='<section>'+stepper(0)+'<h2>'+esc(t.s1h)+'</h2><p class="sub">'+esc(t.s1p)+'</p>'+
+  '<div class="folder"><div class="fh"><span class="ficon"></span>'+esc(t.folder)+'</div><ul class="flist">'+FILES.map(function(f){
+   return '<li><span class="ext '+f.ext+'">'+f.ext.toUpperCase()+'</span><span><div class="fname">'+esc(f.name[lang])+'</div><div class="fdesc">'+esc(f.desc[lang])+'</div></span></li>';}).join("")+
+  '</ul></div><div style="margin-top:14px"><button class="btn" type="button" data-act="run">'+esc(t.run)+'</button></div></section>';
+ } else if(S.step===2){
+  h+='<section>'+stepper(2)+'<h2>'+esc(t.s2h)+'</h2><p class="sub">'+esc(t.s2p)+'</p>'+
+  '<div class="note">'+esc(t.simNote)+'</div>'+recList()+'<p class="small" style="margin-top:10px">'+esc(t.reviewNote)+'</p>'+srcMap()+
+  '<button class="btn" type="button" data-act="toConfirm">'+esc(t.toConfirm)+'</button></section>';
+ } else if(S.step===3){
+  var n=nConf();
+  h+='<section>'+stepper(3)+'<h2>'+esc(t.s3h)+'</h2><p class="sub">'+esc(t.s3p)+'</p><div class="progress" aria-live="polite">'+esc(t.progress(n))+'</div><div class="cf">';
+  h+=cfItem("c2",[["a",t.c2a],["b",t.c2b,"alt"]]);
+  h+=cfItem("c3",[["a",t.c3a]],'<div class="rcpts" style="margin-bottom:8px"><div class="rcpt"><b>'+esc(RECS[2].m[lang])+'</b>'+fullDate("9/05")+'<br><span class="blur">600</span> '+t.yen+'</div></div>');
+  h+=cfItem("c7",[["a",t.c7a]]);
+  h+=cfItem("c8",[["a",t.c8a],["b",t.c8b,"alt"]]);
+  h+='</div><div class="row" style="margin-top:14px">'+(n<4?'<button class="btn sec" type="button" data-act="allOk">'+esc(t.allOk)+'</button>':'')+
+  '<button class="btn'+(n===4?" ok":"")+'" type="button" data-act="toFinal"'+(n<4?" disabled":"")+'>'+esc(t.toFinal)+'</button></div></section>';
+ } else {
+  var fr=finalRecs();
+  h+='<section>'+stepper(4)+'<h2>'+esc(t.s4h)+'</h2><p class="sub">'+esc(t.s4p)+'</p>'+
+  '<div class="sum"><div><small>'+esc(t.k1)+'</small><strong>'+fr.length+'</strong></div><div><small>'+esc(t.k2)+'</small><strong>'+fmt(total())+'</strong></div></div>'+
+  '<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>'+t.th[0]+'</th><th>'+t.th[1]+'</th><th>'+t.th[2]+' / '+t.th[3]+'</th><th class="r">'+t.th[4]+'</th></tr></thead><tbody>'+
+  fr.map(function(r){var at=attendees(r);return '<tr><td>'+r.n+'</td><td>'+r.d+'</td><td><b>'+esc(r.m[lang])+'</b><div>'+esc(useOf(r))+(at?'（'+esc(at)+'）':'')+'</div><div class="src">'+esc(t.th[5])+'：'+esc(fileOf(r.f).name[lang])+'</div></td><td class="r">'+fmt(r.a)+'</td></tr>';}).join("")+
+  '</tbody><tfoot><tr><td colspan="3">'+esc(t.total)+'</td><td class="r">'+fmt(total())+'</td></tr></tfoot></table></div>'+
+  '<p class="small" style="margin-top:8px">'+esc(t.excl)+'</p><p class="small">'+esc(t.deliver)+'</p>'+srcMap()+
+  '<div class="row" style="margin-top:12px"><button class="btn sec" type="button" data-act="csv">'+esc(t.csv)+'</button><button class="btn sec" type="button" data-act="again">'+esc(t.again)+'</button></div>'+
+  '<div class="closing"><p style="margin:0 0 8px">'+esc(t.closing)+'</p><a class="small" href="proposal-zh.pdf" target="_blank" rel="noopener">'+esc(t.pdf)+'</a></div></section>';
+ }
+ q("#app").innerHTML=h;
+}
+function cfItem(k,opts,extra){
+ var t=L();var done=S.conf[k];
+ var res="";
+ if(done){
+  if(k==="c2")res=done==="a"?t.c2a:t.c2b;
+  else if(k==="c3")res=t.c3a;else if(k==="c7")res=t.c7a;else res=t.c8a;
+ }
+ return '<div class="cfi'+(done?" ok":"")+'" id="'+k+'"><h3>'+esc(t[k+"h"])+'</h3>'+
+  (done?'<div class="res">✓ '+esc(t.doneTag)+'：'+esc(res)+'</div>':
+  '<div class="q">'+esc(t[k+"q"])+'</div>'+(extra||"")+'<div class="opts">'+opts.map(function(o){
+   return '<button type="button" class="'+(o[2]||"")+'" data-cf="'+k+'" data-v="'+o[0]+'">'+esc(o[1])+'</button>';}).join("")+'</div>')+'</div>';
+}
+var toastTimer;
+function toast(msg){var el=q("#toast");el.textContent=msg;el.classList.remove("hidden");clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.add("hidden");},2600);}
+function go(step){S.step=step;render();window.scrollTo(0,0);}
+function csv(){
+ var t=L();
+ var rows=[t.csvHead].concat(finalRecs().map(function(r){
+  return [r.n,fullDate(r.d),r.m[lang],useOf(r),attendees(r),r.a,fileOf(r.f).name[lang],(r.st==="read"?t.st.readReview:t.st.done)];
+ }));
+ rows.push(["",t.total,"","","",total(),"",""]);
+ var body="﻿"+rows.map(function(r){return r.map(function(v){v=String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(",");}).join("\r\n");
+ try{
+  var blob=new Blob([body],{type:"text/csv;charset=utf-8"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=t.csvName;document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},800);toast(t.csvToast);
+ }catch(e){window.open("data:text/csv;charset=utf-8,"+encodeURIComponent(body));}
+}
+document.addEventListener("click",function(e){
+ var b=e.target.closest("button");if(!b||b.disabled)return;
+ var lg=b.getAttribute("data-lang");
+ if(lg){setLang(lg,true);return;}
+ var cf=b.getAttribute("data-cf");
+ if(cf){
+  var v=b.getAttribute("data-v");
+  if(cf==="c8"&&v==="b"){toast(L().c8keepWarn);return;}
+  if(!S.conf[cf]){S.conf[cf]=v;render();}
+  return;
+ }
+ switch(b.getAttribute("data-act")){
+  case "start":go(1);break;
+  case "run":go(2);break;
+  case "toConfirm":go(3);break;
+  case "allOk":ORDER.forEach(function(k){if(!S.conf[k])S.conf[k]="a";});render();break;
+  case "toFinal":if(nConf()===4)go(4);else toast(L().needAll);break;
+  case "csv":csv();break;
+  case "again":S={step:1,conf:{}};go(1);break;
+ }
+});
+function setLang(lg,user){
+ if(!T[lg])return;lang=lg;
+ try{var u=new URL(location.href);u.searchParams.set("lang",lg);history.replaceState(null,"",u.toString());}catch(e){}
+ render();
+}
+var param=null;try{param=new URL(location.href).searchParams.get("lang");}catch(e){}
+if(param==="ja"||param==="zh")lang=param;
+else{var nl=(navigator.languages&&navigator.languages[0])||navigator.language||"zh";lang=/^ja/i.test(nl)?"ja":"zh";}
+render();
+})();
+</script>
+</body>
+</html>
