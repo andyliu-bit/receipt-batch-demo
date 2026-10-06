@@ -122,6 +122,17 @@ details .in{padding:0 14px 14px}
 .tbl .src{font-size:12px;color:var(--slate)}
 .closing{background:var(--mist);border-radius:14px;padding:14px;margin-top:16px}
 footer{border-top:1px solid var(--line);margin-top:24px;padding:14px 0 28px;font-size:12.5px;color:var(--slate)}
+.livepv{display:block;max-width:100%;max-height:260px;margin:10px auto;border-radius:10px;border:1px solid var(--line)}
+.live-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0}
+.live-card.warnc{border-color:var(--amber)}
+.live-card .lh{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.live-card .lh b{flex:1;min-width:0;word-break:break-all}
+.live-card .lh .amt{font-weight:700;white-space:nowrap}
+.live-card .no{width:24px;height:24px;border-radius:50%;background:var(--mist);color:var(--slate);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.lf{display:flex;gap:10px;font-size:14px;border-top:1px dashed var(--line);padding:4px 0}
+.lf span{flex:none;width:92px;color:var(--slate)}
+.lf b{font-weight:500;word-break:break-all}
+.lflags{font-size:13px;margin-top:6px;line-height:1.9}
 .hidden{display:none!important}
 .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:999px;font-size:14px;z-index:9;max-width:90vw}
 @media (max-width:420px){h1{font-size:22px}.ba{gap:5px}.ba .side{padding:8px;min-height:0}.pile{height:92px;transform:scale(.82);transform-origin:left top}.mini{font-size:11.5px}.mini li{padding:2px 0}.arrow{font-size:18px}.sum strong{font-size:21px}.tbl{font-size:13px}.tbl .hide-s{display:none}}
@@ -150,7 +161,23 @@ zh:{
  before:"处理前：一叠票据",miniTot:"7条合计",after:"处理后：报销明细",
  p1:"一次放入多个文件（照片、PDF）",p2:"自动拆成单张，提取日期、商家、金额",p3:"只把需要确认的项目单独列出",
  start:"用样例体验（约1分钟）",
- heroNote:"无需注册或上传任何文件，使用虚构样例演示。",
+ heroNote:"样例流程无需注册或上传文件；也可以上传一张票据，试试实时识别。",
+ liveBtn:"或上传一张票据，实时识别",
+ liveBadge:"实时识别 · 结果需复核",
+ liveH:"实时识别：上传一张票据",
+ liveP:"拍照或选择一张收据、账单的图片（JPG / PNG）。一张照片里拍了多张收据也可以。",
+ livePriv:"请使用样例或已遮盖个人信息的票据。图片只发送到阿里云百炼（新加坡）做本次识别，本站不保存；每人每天可识别10次。",
+ livePick:"选择图片 / 拍照",
+ liveLoading:"正在识别……通常需要3–10秒",
+ liveResH:function(n){return "识别出 "+n+" 张票据";},
+ liveNote:"以下为实时识别结果，可能有误，请对照原件复核。",
+ liveMeta:function(m,ms){return "识别模型："+m+"｜用时 "+(ms/1000).toFixed(1)+" 秒";},
+ fl:{date:"日期",merchant:"商家",total:"金额",tax:"税率 / 税额",reg:"登记号码",items:"内容"},
+ flag:{date:"未读到日期",merchant:"未读到商家",total:"未读到金额",reg:"未读到インボイス登记号码",cur:"币种不是日元，请确认",unclear:"读取不确定："},
+ needCheck:"需确认",noFlag:"未发现缺项（仍需复核）",
+ liveAgain:"再识别一张",liveSample:"体验完整样例流程",liveBack:"返回首页",
+ err:{too_large:"图片太大，请换一张较小的图片。",ip_limit:"今天的识别次数已用完，请明天再试，或体验样例流程。",global_limit:"今天的识别次数已达上限，请体验样例流程。",bad_image:"请选择 JPG 或 PNG 图片。",pdf:"演示暂不支持 PDF，请截图后上传图片。",parse_failed:"没能从图片中整理出票据信息，请换一张更清晰的图片。",net:"网络连接失败或超时，请稍后重试。",other:"识别服务暂时不可用，请稍后重试，或体验样例流程。"},
+
  steps:["选择文件","批量整理","查看结果","确认事项","最终明细"],
  s1h:"第1步：选择样例文件夹",s1p:"假设月底手边有这5个文件，其中一张照片里拍了3张收据。",
  folder:"9月票据（虚构样例）",
@@ -177,7 +204,7 @@ zh:{
  deliver:"交付内容：报销明细、对应票据索引、待确认事项处理记录。",
  csv:"下载样例明细（CSV）",again:"重新体验",pdf:"查看详细方案（PDF，中文）",
  closing:"这个流程能否用在您那边，可以结合您现在使用的软件和票据形式一起确认。",
- foot:"本页为流程演示：所有文件、商家、金额均为虚构，金额单位为日元（JPY）。未连接任何真实系统，不处理真实文件。",
+ foot:"样例流程中的文件、商家、金额均为虚构，金额单位为日元（JPY）。“实时识别”会把您上传的图片发送到阿里云百炼（新加坡）进行识别，本站不保存图片；未连接任何会计或报销系统。",
  st:{readReview:"已读取（提交前复核）",read:"已读取",warn2:"缺用途",warn3:"待核对金额",warn7:"缺用途·参加人",warn8:"疑似与#6重复",done:"已确认",excl:"已排除"},
  yen:"日元",
  csvHead:["编号","日期","商家","用途","参加人","金额（日元）","来源文件","状态"],
@@ -193,7 +220,23 @@ ja:{
  before:"処理前：領収書の束",miniTot:"7件 合計",after:"処理後：経費明細",
  p1:"複数のファイル（写真・PDF）をまとめて取り込み",p2:"1枚ずつに分け、日付・支払先・金額を読み取り",p3:"確認が必要な項目だけを一覧に",
  start:"サンプルで試す（約1分）",
- heroNote:"登録やファイルのアップロードは不要です。架空のサンプルで流れをお見せします。",
+ heroNote:"サンプルは登録・アップロード不要です。領収書1枚でリアルタイムの読み取りも試せます。",
+ liveBtn:"領収書1枚でリアルタイム読み取りを試す",
+ liveBadge:"リアルタイム読み取り・要確認",
+ liveH:"リアルタイム読み取り：領収書を1枚アップロード",
+ liveP:"領収書・請求書の写真や画像（JPG / PNG）を選んでください。1枚の写真に複数の領収書が写っていても読み取ります。",
+ livePriv:"サンプルや、個人情報を隠した領収書をお使いください。画像は今回の読み取りのためにAlibaba Cloud Model Studio（シンガポール）へ送信され、本サイトでは保存しません。読み取りは1日10回までです。",
+ livePick:"画像を選ぶ / 撮影する",
+ liveLoading:"読み取り中です……通常3〜10秒ほどかかります",
+ liveResH:function(n){return n+"枚の領収書を読み取りました";},
+ liveNote:"以下はリアルタイムの読み取り結果です。誤りがある場合もあるため、原本と照らし合わせてご確認ください。",
+ liveMeta:function(m,ms){return "読み取りモデル："+m+"｜所要時間 "+(ms/1000).toFixed(1)+" 秒";},
+ fl:{date:"日付",merchant:"支払先",total:"金額",tax:"税率 / 税額",reg:"登録番号",items:"内容"},
+ flag:{date:"日付を読み取れませんでした",merchant:"支払先を読み取れませんでした",total:"金額を読み取れませんでした",reg:"インボイス登録番号が見当たりません",cur:"日本円以外の通貨です。ご確認ください",unclear:"読み取りが不確かな項目："},
+ needCheck:"要確認",noFlag:"記入漏れは見つかりませんでした（確認は必要です）",
+ liveAgain:"もう1枚読み取る",liveSample:"サンプルで全体の流れを見る",liveBack:"トップに戻る",
+ err:{too_large:"画像が大きすぎます。小さめの画像をお試しください。",ip_limit:"本日の読み取り回数の上限に達しました。明日もう一度お試しいただくか、サンプルの流れをご覧ください。",global_limit:"本日の読み取り回数が上限に達しました。サンプルの流れをご覧ください。",bad_image:"JPG または PNG の画像を選んでください。",pdf:"このデモではPDFに対応していません。画面キャプチャを画像でアップロードしてください。",parse_failed:"画像から領収書の情報を整理できませんでした。より鮮明な画像でお試しください。",net:"通信に失敗したか、時間がかかりすぎました。しばらくしてから再度お試しください。",other:"読み取りサービスが一時的に利用できません。時間をおいてお試しいただくか、サンプルの流れをご覧ください。"},
+
  steps:["ファイル選択","まとめて整理","結果確認","要確認事項","最終明細"],
  s1h:"ステップ1：サンプルのフォルダを選択",s1p:"月末に手元にある5つのファイルを想定しています。うち1枚の写真には領収書が3枚写っています。",
  folder:"9月分 領収書（架空サンプル）",
@@ -220,7 +263,7 @@ ja:{
  deliver:"お渡しする内容：経費明細、領収書との対応一覧、要確認事項の処理記録。",
  csv:"サンプル明細をダウンロード（CSV）",again:"もう一度試す",pdf:"詳しい資料を見る（PDF・中国語）",
  closing:"貴社でお使いのソフトや領収書の形式に合うかどうか、あわせて確認できればと思います。",
- foot:"このページは処理の流れを示すデモです。ファイル・支払先・金額はすべて架空で、金額の単位は日本円（JPY）です。実際のシステムには接続しておらず、実際のファイルも処理しません。",
+ foot:"サンプルのファイル・支払先・金額はすべて架空で、金額の単位は日本円（JPY）です。「リアルタイム読み取り」では、アップロードした画像をAlibaba Cloud Model Studio（シンガポール）に送信して読み取ります。本サイトでは画像を保存せず、会計・経費精算システムにも接続していません。",
  st:{readReview:"読取済（提出前に要確認）",read:"読取済",warn2:"用途未記入",warn3:"金額要確認",warn7:"用途・参加者未記入",warn8:"#6と重複の可能性",done:"確認済み",excl:"除外"},
  yen:"円",
  csvHead:["No.","日付","支払先","用途","参加者","金額（円）","元ファイル","状態"],
@@ -315,6 +358,7 @@ function render(){
   [[1,"1,980"],[6,"12,800"],[7,"18,700"]].map(function(x){var r=RECS[x[0]-1];return '<li><span>'+esc(r.m[lang])+'</span><span>'+x[1]+'</span></li>';}).join("")+
   '<li class="warn"><span>'+esc(t.st.warn3)+'</span><span>600？</span></li><li><span>…</span><span></span></li><li class="tot"><span>'+esc(t.miniTot)+'</span><span>38,360 '+t.yen+'</span></li></ul></div></div>'+
   '<button class="btn" type="button" data-act="start">'+esc(t.start)+'</button><p class="small" style="margin-top:8px">'+esc(t.heroNote)+'</p>'+
+  '<button class="btn sec" type="button" data-act="live">'+esc(t.liveBtn)+'</button>'+
   '<ul class="points"><li><b>1</b>'+esc(t.p1)+'</li><li><b>2</b>'+esc(t.p2)+'</li><li><b>3</b>'+esc(t.p3)+'</li></ul></section>';
  } else if(S.step===1){
   h+='<section>'+stepper(0)+'<h2>'+esc(t.s1h)+'</h2><p class="sub">'+esc(t.s1p)+'</p>'+
@@ -334,6 +378,8 @@ function render(){
   h+=cfItem("c8",[["a",t.c8a],["b",t.c8b,"alt"]]);
   h+='</div><div class="row" style="margin-top:14px">'+(n<4?'<button class="btn sec" type="button" data-act="allOk">'+esc(t.allOk)+'</button>':'')+
   '<button class="btn'+(n===4?" ok":"")+'" type="button" data-act="toFinal"'+(n<4?" disabled":"")+'>'+esc(t.toFinal)+'</button></div></section>';
+ } else if(S.step==="live"){
+  h+=liveView();
  } else {
   var fr=finalRecs();
   h+='<section>'+stepper(4)+'<h2>'+esc(t.s4h)+'</h2><p class="sub">'+esc(t.s4p)+'</p>'+
@@ -375,6 +421,88 @@ function csv(){
   setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},800);toast(t.csvToast);
  }catch(e){window.open("data:text/csv;charset=utf-8,"+encodeURIComponent(body));}
 }
+
+/* ---------- 实时识别 ---------- */
+var API=/github\.io$/.test(location.hostname)?"https://receipt-batch-demo.pages.dev/api/recognize":"/api/recognize";
+function toNum(v){if(typeof v==="number"&&isFinite(v))return v;if(typeof v==="string"){var x=v.replace(/[^0-9.\-]/g,"");if(x&&!isNaN(+x))return +x;}return null;}
+function blank(v){return v===null||v===undefined||v===""||v==="null";}
+function flagsOf(r){
+ var t=L(),f=[];
+ if(blank(r.date))f.push(t.flag.date);
+ if(blank(r.merchant))f.push(t.flag.merchant);
+ if(toNum(r.total)===null)f.push(t.flag.total);
+ if(blank(r.registration_no))f.push(t.flag.reg);
+ if(!blank(r.currency)&&String(r.currency).toUpperCase()!=="JPY")f.push(t.flag.cur);
+ var u=(r.unclear||[]).filter(function(x){return !blank(x);});
+ if(u.length)f.push(t.flag.unclear+u.join("、"));
+ return f;
+}
+function curLabel(c){var t=L();if(blank(c)||String(c).toUpperCase()==="JPY")return t.yen;return String(c);}
+function taxText(tx){
+ if(!Array.isArray(tx)||!tx.length)return "—";
+ return tx.map(function(x){var a=toNum(x&&x.amount);return (x&&x.rate?x.rate:"")+(a!==null?" / "+fmt(a):"");}).join("；");
+}
+function liveCard(r,i){
+ var t=L(),fl=flagsOf(r),tot=toNum(r.total);
+ var row=function(k,v){return '<div class="lf"><span>'+esc(t.fl[k])+'</span><b>'+esc(v)+'</b></div>';};
+ return '<div class="live-card'+(fl.length?" warnc":"")+'"><div class="lh"><span class="no">'+(i+1)+'</span><b>'+esc(blank(r.merchant)?"—":r.merchant)+'</b><span class="amt">'+(tot!==null?fmt(tot)+" "+esc(curLabel(r.currency)):"—")+'</span></div>'+
+  row("date",blank(r.date)?"—":r.date)+row("tax",taxText(r.tax))+row("reg",blank(r.registration_no)?"—":r.registration_no)+
+  (blank(r.items)?"":row("items",typeof r.items==="string"?r.items:JSON.stringify(r.items)))+
+  '<div class="lflags">'+(fl.length?fl.map(function(x){return '<span class="st warn">'+esc(t.needCheck)+'</span> '+esc(x);}).join("<br>"):'<span class="st read">✓</span> '+esc(t.noFlag))+'</div></div>';
+}
+function liveView(){
+ var t=L(),L2=S.live||{st:"idle"},h='<section><span class="badge">'+esc(t.liveBadge)+'</span><h2 style="margin-top:10px">'+esc(t.liveH)+'</h2><p class="sub">'+esc(t.liveP)+'</p>'+
+  '<div class="note">'+esc(t.livePriv)+'</div>'+
+  '<input type="file" id="livefile" accept="image/jpeg,image/png,image/webp,image/heic,image/*" hidden>';
+ if(L2.preview)h+='<img class="livepv" alt="" src="'+L2.preview+'">';
+ if(L2.st==="loading")h+='<p class="progress" aria-live="polite">'+esc(t.liveLoading)+'</p>';
+ if(L2.st==="error")h+='<div class="note" style="color:var(--red);border-color:var(--red)">'+esc(t.err[L2.err]||t.err.other)+'</div>';
+ if(L2.st==="done"){
+  var rs=L2.result.receipts||[];
+  h+='<h2 style="margin-top:14px">'+esc(t.liveResH(rs.length))+'</h2><p class="small">'+esc(t.liveNote)+'</p>'+
+   rs.map(liveCard).join("")+'<p class="small">'+esc(t.liveMeta(L2.result.model,L2.result.ms))+'</p>';
+ }
+ h+='<div class="row" style="margin-top:12px">'+
+  (L2.st==="loading"?'<button class="btn" type="button" disabled>'+esc(t.liveLoading)+'</button>':
+   '<button class="btn" type="button" data-act="pick">'+esc(L2.st==="idle"?t.livePick:t.liveAgain)+'</button>')+
+  '</div><div class="row" style="margin-top:10px"><button class="btn sec" type="button" data-act="start">'+esc(t.liveSample)+'</button><button class="btn sec" type="button" data-act="home">'+esc(t.liveBack)+'</button></div></section>';
+ return h;
+}
+function toJpeg(file){
+ return new Promise(function(res,rej){
+  var url=URL.createObjectURL(file),img=new Image();
+  img.onload=function(){
+   var m=1600,w=img.naturalWidth,hh=img.naturalHeight,k=Math.min(1,m/Math.max(w,hh));
+   var c=document.createElement("canvas");c.width=Math.max(1,Math.round(w*k));c.height=Math.max(1,Math.round(hh*k));
+   var g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.drawImage(img,0,0,c.width,c.height);
+   URL.revokeObjectURL(url);res(c.toDataURL("image/jpeg",0.85));
+  };
+  img.onerror=function(){URL.revokeObjectURL(url);rej(new Error("decode"));};
+  img.src=url;
+ });
+}
+function runLive(file){
+ if(!file)return;
+ if(S.live&&S.live.st==="loading")return;
+ if(/pdf$/i.test(file.type)||/\.pdf$/i.test(file.name)){S.live={st:"error",err:"pdf"};render();return;}
+ S.live={st:"loading"};render();
+ toJpeg(file).then(function(dataUrl){
+  S.live.preview=dataUrl;render();
+  var ctl=window.AbortController?new AbortController():null,timer=setTimeout(function(){if(ctl)ctl.abort();},45000);
+  return fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image:dataUrl}),signal:ctl?ctl.signal:undefined})
+   .then(function(r){clearTimeout(timer);return r.json().catch(function(){return {error:"other"};}).then(function(j){return {ok:r.ok,j:j};});})
+   .then(function(x){
+    if(x.ok&&x.j&&Array.isArray(x.j.receipts)){S.live.st="done";S.live.result=x.j;}
+    else{S.live.st="error";S.live.err=(x.j&&x.j.error)||"other";}
+    render();
+   });
+ }).catch(function(e){
+  S.live=S.live||{};S.live.st="error";S.live.err=(e&&e.message==="decode")?"bad_image":"net";render();
+ });
+}
+document.addEventListener("change",function(e){
+ if(e.target&&e.target.id==="livefile"){var f=e.target.files&&e.target.files[0];e.target.value="";runLive(f);}
+});
 document.addEventListener("click",function(e){
  var b=e.target.closest("button");if(!b||b.disabled)return;
  var lg=b.getAttribute("data-lang");
@@ -388,6 +516,9 @@ document.addEventListener("click",function(e){
  }
  switch(b.getAttribute("data-act")){
   case "start":go(1);break;
+  case "live":if(!S.live)S.live={st:"idle"};go("live");break;
+  case "pick":var fi=q("#livefile");if(fi)fi.click();break;
+  case "home":go(0);break;
   case "run":go(2);break;
   case "toConfirm":go(3);break;
   case "allOk":ORDER.forEach(function(k){if(!S.conf[k])S.conf[k]="a";});render();break;
