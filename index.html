@@ -6,9 +6,9 @@
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#1f3a4d">
 <title>批量报销资料整理</title>
-<meta name="description" content="上传一批票据，识别、核对、补充信息后导出报销明细">
+<meta name="description" content="上传一批日本票据，识别、核对、整理公司归属后导出明细">
 <style>
-:root{--navy:#1f3a4d;--navy2:#2a4b61;--teal:#2f6f8f;--amber:#b86e1f;--amberbg:#fbf3ea;--green:#3e7d5a;--greenbg:#edf5f0;--ink:#1f2a33;--slate:#5b6b7a;--mist:#f2f5f7;--line:#dde3e8;--red:#a8432f;--redbg:#fbefec}
+:root{--navy:#1f3a4d;--teal:#2f6f8f;--amber:#b86e1f;--amberbg:#fbf3ea;--green:#3e7d5a;--greenbg:#edf5f0;--ink:#1f2a33;--slate:#5b6b7a;--mist:#f2f5f7;--line:#dde3e8;--red:#a8432f;--redbg:#fbefec}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:#fff;color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif}
@@ -16,6 +16,7 @@ html[lang=ja] body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",
 button,input,select{font:inherit}
 button{cursor:pointer}
 button:disabled{cursor:default;opacity:.5}
+a{color:var(--teal)}
 .wrap{max-width:760px;margin:0 auto;padding:0 16px}
 header.top{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.97);border-bottom:1px solid var(--line)}
 header.top .wrap{display:flex;align-items:center;gap:8px;height:52px}
@@ -74,14 +75,15 @@ section{padding:16px 0 22px}
 .st.proc{color:var(--teal);background:#e8f1f5}
 .st.fail{color:var(--red);background:var(--redbg)}
 .st.wait{color:var(--slate);background:var(--mist)}
+.st.co{color:var(--navy);background:var(--mist);font-weight:600}
+.st.nco{color:var(--red);background:var(--redbg)}
 .sum{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
 .sum div{background:var(--mist);border-radius:12px;padding:8px;text-align:center}
 .sum small{display:block;color:var(--slate);font-size:12px}
 .sum strong{font-size:20px;color:var(--navy)}
-.tot{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.tot div{flex:1 1 150px;background:var(--navy);color:#fff;border-radius:12px;padding:10px 12px}
-.tot small{display:block;color:#c9d6e0;font-size:12.5px}
-.tot strong{font-size:22px}
+.cogrp{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:12px 0}
+.cogrp h3{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.cogrp h3 small{font-weight:600;color:var(--teal);font-size:14px}
 .panel{background:var(--mist);border-radius:14px;padding:12px;margin:10px 0}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
 label.f{display:block;font-size:12.5px;color:var(--slate)}
@@ -89,6 +91,9 @@ label.f input,label.f select{display:block;width:100%;margin-top:2px;border:1px 
 label.f.req>span::after{content:" *";color:var(--red)}
 label.f.chg input,label.f.chg select{border-color:var(--teal);background:#f3f9fc}
 .orig{font-size:12px;color:var(--teal);margin-top:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.chip{display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 4px 2px 10px;font-size:13px}
+.chip button{border:0;background:none;color:var(--slate);font-size:15px;padding:0 6px}
 .rec{border:1px solid var(--line);border-radius:14px;background:#fff;margin:10px 0;overflow:hidden}
 .rec.s-conf{border-color:var(--green)}
 .rec.s-excl{opacity:.6}
@@ -107,19 +112,22 @@ label.f.chg input,label.f.chg select{border-color:var(--teal);background:#f3f9fc
 .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .acts .btn{flex:1 1 140px}
 .sec-t{font-size:13px;font-weight:700;color:var(--navy);margin:12px 0 6px}
+.taxl{display:grid;grid-template-columns:70px 1fr 110px 1fr 30px;gap:6px;align-items:end;margin-bottom:6px}
+.taxl label.f input,.taxl label.f select{padding:6px;font-size:14px;min-height:36px}
+.taxl .x{border:0;background:none;color:var(--red);font-size:18px;padding:0 0 8px}
 .tbl{width:100%;border-collapse:collapse;font-size:14px}
 .tbl th,.tbl td{border-bottom:1px solid var(--line);padding:7px 5px;text-align:left;vertical-align:top}
-.tbl th{font-size:12.5px;color:var(--slate);font-weight:600}
+.tbl th{font-size:12.5px;color:var(--slate);font-weight:600;white-space:nowrap}
 .tbl td.r,.tbl th.r{text-align:right;white-space:nowrap}
-.tbl .s2{font-size:12px;color:var(--slate)}
 .tbl td:nth-child(2){white-space:nowrap}
+.tbl .s2{font-size:12px;color:var(--slate)}
 .ov{position:fixed;inset:0;background:rgba(15,25,35,.86);z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px}
 .ov img{max-width:100%;max-height:82vh;border-radius:8px;background:#fff}
 .ov .cap{color:#fff;font-size:13px;margin:8px 0}
 footer{border-top:1px solid var(--line);margin-top:24px;padding:14px 0 28px;font-size:12.5px;color:var(--slate)}
 .hidden{display:none!important}
 .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:999px;font-size:14px;z-index:30;max-width:90vw;text-align:center}
-@media (max-width:420px){h1{font-size:22px}.ba{gap:5px}.ba .side{padding:8px;min-height:0}.pile{height:92px;transform:scale(.82);transform-origin:left top}.mini-l{font-size:11.5px}.sum strong{font-size:17px}.tbl{font-size:13px}.tot strong{font-size:19px}}
+@media (max-width:420px){h1{font-size:22px}.ba{gap:5px}.ba .side{padding:8px;min-height:0}.pile{height:92px;transform:scale(.82);transform-origin:left top}.mini-l{font-size:11.5px}.sum strong{font-size:17px}.tbl{font-size:13px}.taxl{grid-template-columns:62px 1fr 92px;}.taxl .tx{grid-column:2/3}.taxl .x{grid-column:3/4}}
 </style>
 </head>
 <body>
@@ -138,80 +146,104 @@ footer{border-top:1px solid var(--line);margin-top:24px;padding:14px 0 28px;font
 <script>
 (function(){
 "use strict";
+var KOHYO="https://www.invoice-kohyo.nta.go.jp/";
 /* ================= 文案 ================= */
 var T={
 zh:{
  htmlLang:"zh-CN",title:"批量报销资料整理",brand:"批量报销资料整理",
- h1:"批量整理票据，\n减少逐张上传和录入",
- lead:"把一批收据、账单的图片一次传上来：自动识别，您核对、补充用途后确认，导出报销明细。",
- before:"处理前：一叠票据",after:"处理后：报销明细",heroTot:"合计（日元）",heroWarn:"待核对",
- goUpload:"上传票据（实时识别）",goSample:"使用样例（虚构数据）",
+ h1:"日本票据批量整理，\n按公司分好、核对后导出",
+ lead:"把一批收据、領収書、請求書的图片一次传上来：自动读取，您核对、选择归属公司并补充用途后确认，导出供财务复核的整理明细。",
+ before:"处理前：一叠票据",after:"处理后：按公司整理",heroTot:"A公司 合计",heroWarn:"待核对",
+ goUpload:"上传票据",goSample:"使用样例（虚构数据）",
  heroNote:"无需注册。上传的图片只在本页面处理，刷新或关闭后清空。",
- p1:"一次选择多张图片（JPG / PNG），可以继续追加",p2:"识别日期、商家、金额、币种、票据号码",p3:"您核对修改、补充用途后逐条确认，再导出",
- steps:["上传识别","核对补充","确认导出"],
- badgeLive:"实时识别 · 结果需人工复核",badgeSample:"样例 · 虚构数据",
+ p1:"一次选择多张图片（JPG / PNG），可以继续追加",p2:"读取日期、开具方、金额、税率明细、登记号码、宛名等",p3:"批量设置公司和报销人，逐张核对后确认，按公司导出",
+ steps:["上传识别","核对整理","确认导出"],
+ badgeLive:"读取结果 · 需人工复核",badgeSample:"样例 · 虚构数据",
  upH:"上传这批票据",upP:"可一次选择多张图片，也可以分几次追加。一张照片里拍了多张收据也可以。",
- upPriv:"识别模型：通义千问 qwen3-vl-flash（仅用于演示，正式使用时会换用更快、更准确的模型）。请使用样例或已遮盖个人信息的票据，本站不保存图片。每批最多10个文件，每人每天可识别10次；PDF暂不支持，请上传图片。",
+ upPriv:"请使用样例或已遮盖个人信息的票据，本站不保存图片。每批最多10个文件，每人每天可读取10次；PDF暂不支持，请上传图片。",
  pick:"选择图片",addMore:"继续添加图片",retryFailed:"重试失败的文件",
  toReview:function(n){return "核对并整理这批票据（"+n+"条记录）";},
- waitDone:"识别完成后即可开始核对",
- fs:{wait:"等待中",proc:"识别中…",done:"已识别",fail:"失败"},
- fRecs:function(n){return "识别出 "+n+" 条记录";},
+ waitDone:"读取完成后即可开始核对",
+ fs:{wait:"等待中",proc:"读取中…",done:"已读取",fail:"失败"},
+ fRecs:function(n){return "读取出 "+n+" 条记录";},
  fRetry:"重试",fRemove:"移除",
  tooMany:"每批最多10个文件，超出的文件未加入。",notImg:"已跳过非图片文件（PDF 暂不支持）：",
- err:{too_large:"图片太大",ip_limit:"今天的识别次数已用完",global_limit:"今天全站识别次数已达上限",bad_image:"不是可识别的图片",parse_failed:"未能整理出票据信息",net:"网络失败或超时",empty:"图片中没有识别到票据",other:"识别服务暂时不可用"},
- rvH:"核对这批票据",rvP:"识别结果仍需人工复核。请对照原图修改有误的字段，补充用途后逐条确认。",
- sum:{all:"全部",pend:"待复核",conf:"已确认",excl:"已排除"},
- bulkH:"批量填写（仅应用到待复核记录）",bulkApply:"应用到待复核记录",bulkDone:function(n){return "已应用到 "+n+" 条待复核记录";},bulkNone:"请先填写要批量设置的内容",
- sampleFill:"按样例完成核对（仅样例）",sampleFilled:"已按样例补充并确认无问题的记录",
- sampleFiles:"样例：5个虚构文件，识别为8条记录",
+ err:{too_large:"图片太大",ip_limit:"今天的读取次数已用完",global_limit:"今天全站读取次数已达上限",bad_image:"不是可读取的图片",parse_failed:"未能整理出票据信息",net:"网络失败或超时",empty:"图片中没有找到票据",other:"读取服务暂时不可用"},
+ rvH:"核对这批票据",rvP:"读取结果需要人工复核：对照原图修改有误的字段，选择归属公司、补充业务用途后逐条确认。",
+ sum:{all:"全部",pend:"待核对",conf:"已确认",excl:"已排除"},
+ coH:"公司与报销人（本批默认值）",
+ coList:"本批涉及的公司",coAdd:"添加",coPh:"输入公司名称，例：青葉商事株式会社",coNone:"还没有添加公司",
+ coDefault:"默认公司",claimDefault:"默认报销人",
+ applyEmpty:"填入未设置的待核对记录",applyAll:"覆盖全部待核对记录",
+ applied:function(n){return "已应用到 "+n+" 条记录";},applyNone:"请先选择默认公司或填写报销人",
+ coPending:"（待确认）",
+ sampleFill:"按样例完成核对（仅样例）",sampleFilled:"已按样例补充，并确认了没有问题的记录",
+ sampleFiles:"样例：5个虚构文件，7条记录，涉及2家虚构公司",
  toResult:"查看确认后的明细",
- f:{date:"日期",merchant:"商家",total:"金额",currency:"币种",tax:"税额",docType:"号码类型",docNo:"票据号码",purpose:"用途",category:"费用类别",claimant:"报销人",company:"归属公司",note:"备注（参加人等）"},
- ph:{date:"YYYY-MM-DD",purpose:"例：客户会餐"},
+ kind:{"":"（未识别）",receipt:"收据（レシート）",ryoshusho:"領収書",invoice:"請求書",other:"其他"},
+ f:{docKind:"票据类型",date:"交易日期",issuer:"开具方 / 商家",total:"合计金额",currency:"币种",addressee:"宛名（抬头）",tadashi:"但し書き（票面用途）",regNo:"登记号码",otherNo:"其他票据编号",company:"归属公司",claimant:"报销人",purpose:"业务用途",category:"费用类别",note:"备注（参加人等）",taxLines:"税率明细"},
+ tl:{rate:"税率",amount:"对象额",basis:"口径",tax:"税额",incl:"含税",excl:"未税",unk:"不明",add:"＋添加税率行",none:"票面未读到税率明细"},
+ ph:{date:"YYYY-MM-DD",purpose:"例：客户会议用茶点",reg:"T＋13位数字"},
  curNone:"未识别",
- doc:{jp_invoice_registration:"日本インボイス登记号码",cn_invoice_number:"中国发票号码",cn_tax_id:"中国纳税人识别号",receipt_number:"收据编号",unknown:"类型未确定",none:"（无）"},
- cat:{"":"（未选择）",transport:"交通费",meal:"餐饮招待",office:"办公用品",travel:"差旅住宿",comm:"通信费",other:"其他"},
- recogLbl:"识别字段",extraLbl:"报销信息（由您填写，系统不会自动补全）",
- origVal:function(v){return "识别值："+v;},restore:"恢复识别值",origEmpty:"（未识别到）",
+ cat:{"":"（未选择）",transport:"交通费",meal:"会议・招待费",office:"办公用品",travel:"差旅住宿",comm:"通信费",other:"其他"},
+ recogLbl:"票面读取的内容（可修改）",extraLbl:"内部整理信息（由您填写，系统不会自动补全）",
+ origVal:function(v){return "读取值："+v;},restore:"恢复读取值",origEmpty:"（未读到）",
  viewImg:"查看原图",inImg:function(k,n){return n>1?"同一图片中的第"+k+"张（共"+n+"张，未裁切，显示整张原图）":"原图";},
  confirm:"确认此条",unconfirm:"撤销确认",exclude:"排除此条",unexclude:"撤销排除",
- notDup:"不是重复，保留",ackUnclear:function(f){return "已对照原件核对"+f;},
+ notDup:"不是重复，保留",ackBtn:"已对照原件核对",
+ useSug:function(c){return "采用建议："+c;},
  reConfirm:"已修改，需重新确认",
- blockHint:"还有需要处理的问题，暂不能确认",
- is:{date:"缺少日期",dateBad:"日期格式无效（应为 YYYY-MM-DD）",merchant:"缺少商家",total:"缺少金额",totalBad:"金额无效",currency:"币种不明，请选择",purpose:"请填写用途",
-  unclear:function(f){return "识别不确定："+f+"，请对照原图";},dup:function(x){return "可能与 "+x+" 重复（日期、金额、币种相同）";},dupOk:function(x){return "已确认与 "+x+" 不是重复";},
-  cny:"币种为人民币，是否可报销请按公司规定确认",otherCur:function(c){return "币种为 "+c+"，请按公司规定确认";},
-  docUnknown:"票据号码类型未确定，请确认",docBadJp:"号码不是 T+13位数字，已改为“类型未确定”",
-  noIssue:"未发现问题（不代表字段一定正确，仍请核对）"},
- resH:"确认后的报销明细",resP:"只包含已确认、未排除的记录。不同币种分别合计，不做换算。",
- resPend:function(n){return "还有 "+n+" 条待复核记录，未计入下表。";},
+ blockHint:"还有需要处理的项目，暂不能确认",
+ is:{date:"缺少交易日期",dateBad:"日期格式无效（应为 YYYY-MM-DD）",issuer:"缺少开具方",total:"缺少合计金额",totalBad:"合计金额无效",currency:"币种不明，请选择",purpose:"请填写业务用途",company:"请选择归属公司",
+  unclear:function(f){return "读取不确定："+f+"，请对照原图";},
+  dup:function(x,why){return "疑似与 "+x+" 重复（"+why+"），请决定保留或排除";},dupOk:function(x){return "已确认与 "+x+" 不是重复";},
+  dupWhy:{base:"日期、金额、币种相同",sameIssuer:"开具方相同",diffIssuer:"开具方不同",sameReg:"登记号码相同",diffReg:"登记号码不同"},
+  issuerSama:"开具方名称含「様」等，可能与宛名对调",
+  issuerOwn:"开具方与本批的公司名称一致，可能与宛名对调",
+  addrNoSama:"宛名里没有「様」「御中」等，可能不是宛名，请核对",tadashiOdd:"票面用途不像但し書き（没有「但」字），请核对",
+  taxEq:function(r){return r+" 的对象额与税额相同";},
+  taxSum:"税率明细合计与合计金额不一致",
+  taxRate:function(r){return r+" 的税额与税率对不上（仅供参考）";},
+  regBad:"登记号码不是「T＋13位数字」的格式",
+  regOk:"登记号码格式符合（T＋13位数字）；登记状态未查询",regNone:"票面未读到登记号码（如何处理请由财务判断）",
+  noTax:"票面未读到税率明细",
+  sug:function(c,a){return "归属建议：「"+c+"」（依据：宛名「"+a+"」与公司名称一致），请确认";},
+  otherCur:function(c){return "币种为 "+c+"，请确认";},
+  noIssue:"未发现需要提示的问题（仍需人工核对）",
+  ackDone:"已对照原件核对"},
+ kohyo:"在国税厅公表网站查询",
+ resH:"整理明细（按公司）",resP:"只包含已确认、未排除的记录；按公司和币种分别合计，不做换算。此明细供财务复核及后续处理。",
+ resPend:function(n){return "还有 "+n+" 条待核对记录，未计入下表。";},
  resNone:"还没有已确认的记录。请返回核对并确认。",
- totLbl:function(c,n){return c+" 合计（"+n+"条）";},
- th:{no:"编号",date:"日期",merchant:"商家 / 用途",amount:"金额"},
- addFiles:"继续添加票据",backReview:"返回核对",exportOk:"导出明细（CSV，仅已确认）",exportDraft:"导出草稿（含未复核）",
+ coTot:function(c,n,s){return c+" "+s+"（"+n+"条）";},
+ th:{no:"编号",date:"日期",issuer:"开具方 / 用途",amount:"金额"},
+ addFiles:"继续添加票据",backReview:"返回核对",exportOk:"导出整理明细（CSV，仅已确认）",exportDraft:"导出草稿（含未核对）",
+ exportNote:"CSV 为通用格式（UTF-8，Excel 可直接打开）。是否能直接导入 freee、マネーフォワード等软件，需要按目标软件的格式另行确认。",
  clear:"清空本次数据",clearQ:"确定清空本次上传的图片和填写内容吗？",cleared:"已清空",
  keepNote:"数据只保存在当前页面：刷新或关闭页面后会清空，请在离开前导出。",
  switchQ:"切换到样例会清空当前上传的数据，确定吗？",
- csvName:function(d){return d?"报销明细草稿_未复核.csv":"报销明细_已确认.csv";},csvToast:"已导出 CSV",
- csvHead:["记录编号","数据来源","原文件名","图片内序号","日期","商家","金额","币种","税额","票据号码类型","票据号码","用途","费用类别","报销人","归属公司","备注","核对状态","修改过的识别字段"],
- csvSrc:{live:"实时识别",sample:"样例（虚构）"},csvStat:{pend:"待复核（未确认）",conf:"已确认",excl:"已排除"},csvTot:function(c){return "合计（"+c+"）";},
- draftMark:"【草稿：含未复核记录，不能作为正式结果】",
+ csvName:function(d){return d?"整理明细草稿_含未核对.csv":"整理明细_已确认.csv";},csvToast:"已导出 CSV",
+ csvHead:["记录编号","数据来源","原文件名","图片内序号","票据类型","交易日期","开具方/商家","合计金额","币种","宛名","但し書き","登记号码","登记号码状态","其他票据编号","10%对象额","10%口径","10%税额","8%对象额","8%口径","8%税额","其他税率明细","归属公司","报销人","业务用途","费用类别","备注","核对状态","修改过的读取字段"],
+ csvSrc:{live:"图片读取",sample:"样例（虚构）"},csvStat:{pend:"待核对（未确认）",conf:"已确认",excl:"已排除"},
+ regStat:{none:"未读到",bad:"格式不符",ok:"格式符合・未查询"},
+ csvTot:function(c,cur){return "合计："+c+"（"+cur+"）";},
+ draftMark:"【草稿：含未核对记录，不能作为正式结果】",
  leaveQ:"离开后本次数据将清空",
- foot:"当前识别模型为通义千问 qwen3-vl-flash，仅用于演示，正式使用时会换用更快、更准确的模型。本站不保存图片和票据内容，数据只存在当前页面。样例模式使用虚构数据。未连接任何会计或报销系统。",
+ foot:"本页的读取结果由演示用的识别模型生成，可能有误，需要人工核对；正式使用时的识别方式将根据实际票据和需求另行确定。本站不保存图片和票据内容，数据只存在当前页面。样例模式使用虚构数据。未连接任何会计或报销系统；税务处理请由财务或税理士判断。",
  pdf:"查看详细方案（PDF，中文）"
 },
 ja:{
  htmlLang:"ja",title:"経費精算資料のまとめ処理",brand:"経費精算資料のまとめ処理",
- h1:"領収書をまとめて整理。\n1枚ずつの登録・入力を減らします",
- lead:"領収書・請求書の画像をまとめてアップロードすると自動で読み取ります。内容を確認し、用途を補ってから確定すると、経費明細として出力できます。",
- before:"処理前：領収書の束",after:"処理後：経費明細",heroTot:"合計（円）",heroWarn:"要確認",
- goUpload:"領収書をアップロード（リアルタイム読み取り）",goSample:"サンプルで試す（架空データ）",
+ h1:"領収書をまとめて読み取り、\n会社ごとに確認して出力",
+ lead:"レシート・領収書・請求書の画像をまとめてアップロードすると自動で読み取ります。内容を確認し、計上会社と用途を入れて確定すると、経理確認用の明細として出力できます。",
+ before:"処理前：領収書の束",after:"処理後：会社ごとに整理",heroTot:"A社 合計",heroWarn:"要確認",
+ goUpload:"領収書をアップロード",goSample:"サンプルで試す（架空データ）",
  heroNote:"登録は不要です。アップロードした画像はこのページ内だけで処理し、再読み込みや終了で消去されます。",
- p1:"複数の画像（JPG / PNG）をまとめて選択、あとから追加も可能",p2:"日付・支払先・金額・通貨・番号を読み取り",p3:"内容を確認・修正し、用途を補って1件ずつ確定、出力",
- steps:["アップロード・読み取り","確認・補足","確定・出力"],
- badgeLive:"リアルタイム読み取り・要確認",badgeSample:"サンプル・架空データ",
+ p1:"複数の画像（JPG / PNG）をまとめて選択、あとから追加も可能",p2:"日付・発行元・金額・税率ごとの内訳・登録番号・宛名などを読み取り",p3:"計上会社と申請者をまとめて設定し、1件ずつ確認・確定、会社ごとに出力",
+ steps:["アップロード・読み取り","確認・整理","確定・出力"],
+ badgeLive:"読み取り結果・要確認",badgeSample:"サンプル・架空データ",
  upH:"領収書をアップロード",upP:"複数の画像をまとめて選ぶことも、何回かに分けて追加することもできます。1枚の写真に複数の領収書が写っていても構いません。",
- upPriv:"読み取りモデル：Qwen qwen3-vl-flash（デモ用です。正式な運用では、より速く正確なモデルに切り替えます）。サンプルや、個人情報を隠した領収書をお使いください。本サイトでは画像を保存しません。1回あたり10ファイルまで、読み取りは1日10回までです。PDFには対応していないため、画像でアップロードしてください。",
+ upPriv:"サンプルや、個人情報を隠した領収書をお使いください。本サイトでは画像を保存しません。1回あたり10ファイルまで、読み取りは1日10回までです。PDFには対応していないため、画像でアップロードしてください。",
  pick:"画像を選ぶ",addMore:"画像を追加",retryFailed:"失敗したファイルを再試行",
  toReview:function(n){return "この領収書を確認・整理する（"+n+"件）";},
  waitDone:"読み取りが終わると確認に進めます",
@@ -220,44 +252,67 @@ ja:{
  fRetry:"再試行",fRemove:"削除",
  tooMany:"1回あたり10ファイルまでです。超えた分は追加していません。",notImg:"画像以外のファイルはスキップしました（PDFは未対応）：",
  err:{too_large:"画像が大きすぎます",ip_limit:"本日の読み取り回数の上限に達しました",global_limit:"本日の読み取り回数が上限に達しました",bad_image:"読み取れる画像ではありません",parse_failed:"領収書の情報を整理できませんでした",net:"通信に失敗したか、時間がかかりすぎました",empty:"領収書が見つかりませんでした",other:"読み取りサービスが一時的に利用できません"},
- rvH:"領収書の内容を確認",rvP:"読み取り結果はご担当者による確認が必要です。原本の画像と照らし合わせて誤りを直し、用途を補ってから1件ずつ確定してください。",
+ rvH:"領収書の内容を確認",rvP:"読み取り結果はご担当者の確認が必要です。画像と照らし合わせて誤りを直し、計上会社と用途を入れてから1件ずつ確定してください。",
  sum:{all:"全件",pend:"要確認",conf:"確定",excl:"除外"},
- bulkH:"まとめて入力（要確認の明細にのみ反映）",bulkApply:"要確認の明細に反映",bulkDone:function(n){return n+"件の要確認明細に反映しました";},bulkNone:"まとめて設定する内容を入力してください",
+ coH:"計上会社と申請者（この回の既定値）",
+ coList:"この回で扱う会社",coAdd:"追加",coPh:"会社名を入力（例：青葉商事株式会社）",coNone:"会社はまだ登録されていません",
+ coDefault:"既定の計上会社",claimDefault:"既定の申請者",
+ applyEmpty:"未設定の要確認明細に入れる",applyAll:"要確認明細すべてに上書き",
+ applied:function(n){return n+"件に反映しました";},applyNone:"既定の計上会社または申請者を入れてください",
+ coPending:"（未確定）",
  sampleFill:"サンプルどおりに確認を完了（サンプルのみ）",sampleFilled:"サンプルの内容を補い、問題のない明細を確定しました",
- sampleFiles:"サンプル：架空のファイル5つ、明細8件",
+ sampleFiles:"サンプル：架空のファイル5つ、明細7件、架空の会社2社",
  toResult:"確定した明細を見る",
- f:{date:"日付",merchant:"支払先",total:"金額",currency:"通貨",tax:"税額",docType:"番号の種類",docNo:"番号",purpose:"用途",category:"費目",claimant:"申請者",company:"計上会社",note:"備考（参加者など）"},
- ph:{date:"YYYY-MM-DD",purpose:"例：取引先との会食"},
+ kind:{"":"（読み取れず）",receipt:"レシート",ryoshusho:"領収書",invoice:"請求書",other:"その他"},
+ f:{docKind:"書類の種類",date:"取引日",issuer:"発行元",total:"合計金額",currency:"通貨",addressee:"宛名",tadashi:"但し書き",regNo:"登録番号",otherNo:"その他の番号",company:"計上会社",claimant:"申請者",purpose:"業務上の用途",category:"費目",note:"備考（参加者など）",taxLines:"税率ごとの内訳"},
+ tl:{rate:"税率",amount:"対象額",basis:"区分",tax:"税額",incl:"税込",excl:"税抜",unk:"不明",add:"＋税率行を追加",none:"税率ごとの内訳は読み取れませんでした"},
+ ph:{date:"YYYY-MM-DD",purpose:"例：取引先との打ち合わせ用飲料",reg:"T＋13桁"},
  curNone:"不明",
- doc:{jp_invoice_registration:"インボイス登録番号",cn_invoice_number:"中国の発票番号",cn_tax_id:"中国の納税者識別番号",receipt_number:"領収書番号",unknown:"種類未確定",none:"（なし）"},
- cat:{"":"（未選択）",transport:"交通費",meal:"会議・交際費",office:"事務用品費",travel:"出張・宿泊費",comm:"通信費",other:"その他"},
- recogLbl:"読み取り項目",extraLbl:"精算情報（ご記入ください。システムが自動で補うことはありません）",
+ cat:{"":"（未選択）",transport:"交通費",meal:"会議費・交際費",office:"事務用品費",travel:"出張・宿泊費",comm:"通信費",other:"その他"},
+ recogLbl:"書類から読み取った内容（修正できます）",extraLbl:"社内での整理情報（ご記入ください。システムが自動で補うことはありません）",
  origVal:function(v){return "読み取り値："+v;},restore:"読み取り値に戻す",origEmpty:"（読み取れず）",
  viewImg:"元の画像を見る",inImg:function(k,n){return n>1?"同じ画像内の"+k+"枚目（全"+n+"枚・切り抜きなし、画像全体を表示）":"元の画像";},
  confirm:"この明細を確定",unconfirm:"確定を取り消す",exclude:"この明細を除外",unexclude:"除外を取り消す",
- notDup:"重複ではない（残す）",ackUnclear:function(f){return "原本で"+f+"を確認済み";},
+ notDup:"重複ではない（残す）",ackBtn:"原本で確認済み",
+ useSug:function(c){return "候補を使う："+c;},
  reConfirm:"修正したため、再度確定が必要です",
  blockHint:"未対応の項目があるため、まだ確定できません",
- is:{date:"日付がありません",dateBad:"日付の形式が正しくありません（YYYY-MM-DD）",merchant:"支払先がありません",total:"金額がありません",totalBad:"金額が正しくありません",currency:"通貨が不明です。選択してください",purpose:"用途を入力してください",
-  unclear:function(f){return "読み取りが不確か："+f+"。画像でご確認ください";},dup:function(x){return x+"と重複の可能性があります（日付・金額・通貨が一致）";},dupOk:function(x){return x+"とは重複でないことを確認済み";},
-  cny:"通貨は人民元です。精算対象かどうかは社内規程でご確認ください",otherCur:function(c){return "通貨は"+c+"です。社内規程でご確認ください";},
-  docUnknown:"番号の種類が確定していません。ご確認ください",docBadJp:"T＋13桁の形式ではないため「種類未確定」にしました",
-  noIssue:"問題は見つかりませんでした（内容が正しいとは限らないため、ご確認ください）"},
- resH:"確定した経費明細",resP:"確定済みで除外していない明細のみを表示しています。通貨ごとに合計し、換算はしていません。",
+ is:{date:"取引日がありません",dateBad:"日付の形式が正しくありません（YYYY-MM-DD）",issuer:"発行元がありません",total:"合計金額がありません",totalBad:"合計金額が正しくありません",currency:"通貨が不明です。選択してください",purpose:"業務上の用途を入力してください",company:"計上会社を選んでください",
+  unclear:function(f){return "読み取りが不確か："+f+"。画像でご確認ください";},
+  dup:function(x,why){return x+"と重複の可能性があります（"+why+"）。残すか除外するかを選んでください";},dupOk:function(x){return x+"とは重複でないことを確認済み";},
+  dupWhy:{base:"日付・金額・通貨が一致",sameIssuer:"発行元も一致",diffIssuer:"発行元は異なる",sameReg:"登録番号も一致",diffReg:"登録番号は異なる"},
+  issuerSama:"発行元に「様」などが含まれています。宛名と入れ替わっている可能性があります",
+  issuerOwn:"発行元がこの回の会社名と一致しています。宛名と入れ替わっている可能性があります",
+  addrNoSama:"宛名に「様」「御中」などがありません。宛名ではない可能性があります",tadashiOdd:"但し書きらしくありません（「但」がありません）。ご確認ください",
+  taxEq:function(r){return r+"の対象額と税額が同じです";},
+  taxSum:"税率ごとの内訳の合計が合計金額と一致しません",
+  taxRate:function(r){return r+"の税額が税率と合いません（参考）";},
+  regBad:"登録番号が「T＋13桁」の形式ではありません",
+  regOk:"登録番号の形式は正しい（T＋13桁）です。登録状況は未照会です",regNone:"登録番号は読み取れませんでした（扱いは経理でご判断ください）",
+  noTax:"税率ごとの内訳は読み取れませんでした",
+  sug:function(c,a){return "計上会社の候補：「"+c+"」（根拠：宛名「"+a+"」が会社名と一致）。ご確認ください";},
+  otherCur:function(c){return "通貨は"+c+"です。ご確認ください";},
+  noIssue:"指摘事項は見つかりませんでした（確認は必要です）",
+  ackDone:"原本で確認済み"},
+ kohyo:"国税庁の公表サイトで照会",
+ resH:"整理済み明細（会社別）",resP:"確定済みで除外していない明細のみです。会社・通貨ごとに合計し、換算はしていません。経理での確認・後続処理用の明細です。",
  resPend:function(n){return "要確認の明細が"+n+"件あり、下表には含まれていません。";},
  resNone:"確定した明細はまだありません。確認画面に戻って確定してください。",
- totLbl:function(c,n){return c+" 合計（"+n+"件）";},
- th:{no:"No.",date:"日付",merchant:"支払先 / 用途",amount:"金額"},
- addFiles:"領収書を追加",backReview:"確認に戻る",exportOk:"明細を出力（CSV・確定分のみ）",exportDraft:"下書きを出力（未確認を含む）",
+ coTot:function(c,n,s){return c+" "+s+"（"+n+"件）";},
+ th:{no:"No.",date:"日付",issuer:"発行元 / 用途",amount:"金額"},
+ addFiles:"領収書を追加",backReview:"確認に戻る",exportOk:"整理済み明細を出力（CSV・確定分のみ）",exportDraft:"下書きを出力（未確認を含む）",
+ exportNote:"CSVは汎用形式（UTF-8、Excelでそのまま開けます）です。freee・マネーフォワードなどへそのまま取り込めるかは、各ソフトの形式に合わせて別途確認が必要です。",
  clear:"今回のデータを消去",clearQ:"アップロードした画像と入力内容をすべて消去しますか？",cleared:"消去しました",
  keepNote:"データはこのページ内にのみ保持されます。再読み込みやページを閉じると消去されるため、先に出力してください。",
  switchQ:"サンプルに切り替えると、アップロードしたデータは消去されます。よろしいですか？",
- csvName:function(d){return d?"経費明細_下書き_未確認含む.csv":"経費明細_確定分.csv";},csvToast:"CSVを出力しました",
- csvHead:["明細番号","データ元","元ファイル名","画像内の順番","日付","支払先","金額","通貨","税額","番号の種類","番号","用途","費目","申請者","計上会社","備考","確認状況","修正した読み取り項目"],
- csvSrc:{live:"リアルタイム読み取り",sample:"サンプル（架空）"},csvStat:{pend:"要確認（未確定）",conf:"確定",excl:"除外"},csvTot:function(c){return "合計（"+c+"）";},
+ csvName:function(d){return d?"整理明細_下書き_未確認含む.csv":"整理明細_確定分.csv";},csvToast:"CSVを出力しました",
+ csvHead:["明細番号","データ元","元ファイル名","画像内の順番","書類の種類","取引日","発行元","合計金額","通貨","宛名","但し書き","登録番号","登録番号の状況","その他の番号","10%対象額","10%区分","10%税額","8%対象額","8%区分","8%税額","その他の税率内訳","計上会社","申請者","業務上の用途","費目","備考","確認状況","修正した読み取り項目"],
+ csvSrc:{live:"画像読み取り",sample:"サンプル（架空）"},csvStat:{pend:"要確認（未確定）",conf:"確定",excl:"除外"},
+ regStat:{none:"読み取れず",bad:"形式不一致",ok:"形式一致・未照会"},
+ csvTot:function(c,cur){return "合計："+c+"（"+cur+"）";},
  draftMark:"【下書き：未確認の明細を含みます。正式な結果ではありません】",
  leaveQ:"ページを離れると今回のデータは消去されます",
- foot:"現在の読み取りモデルは Qwen qwen3-vl-flash で、デモ用です。正式な運用では、より速く正確なモデルに切り替えます。本サイトでは画像や領収書の内容を保存せず、データはこのページ内にのみ保持されます。サンプルは架空データです。会計・経費精算システムには接続していません。",
+ foot:"このページの読み取り結果はデモ用の認識モデルによるもので、誤りを含む場合があるため、ご担当者の確認が必要です。正式な運用での認識方法は、実際の領収書やご要望に合わせて別途決定します。本サイトでは画像や領収書の内容を保存せず、データはこのページ内にのみ保持されます。サンプルは架空データです。会計・経費精算システムには接続していません。税務上の扱いは経理または税理士がご判断ください。",
  pdf:"詳しい資料を見る（PDF・中国語）"
 }};
 var lang="zh";
@@ -266,109 +321,157 @@ function L(){return T[lang];}
 /* ================= 状态 ================= */
 var MAX_FILES=10, CONCURRENCY=2;
 var API=/github\.io$/.test(location.hostname)?"https://receipt-batch-demo.pages.dev/api/recognize":"/api/recognize";
-var REC_FIELDS=["date","merchant","total","currency","tax","docType","docNo"];
-var EXTRA_FIELDS=["purpose","category","claimant","company","note"];
-var S={view:"home",mode:null,files:[],recs:[],seq:0,fseq:0,open:{},bulk:{company:"",claimant:"",category:""}};
-function newBatch(mode){S.mode=mode;S.files=[];S.recs=[];S.seq=0;S.fseq=0;S.open={};S.bulk={company:"",claimant:"",category:""};S.lastCsv="";}
+var REC_FIELDS=["docKind","date","issuer","total","currency","addressee","tadashi","regNo","otherNo","taxLines"];
+var EXTRA_FIELDS=["company","claimant","purpose","category","note"];
+var S;
+function newBatch(mode){S={view:S?S.view:"home",mode:mode,files:[],recs:[],seq:0,fseq:0,open:{},companies:[],defCo:"",defClaim:"",lastCsv:""};}
+newBatch(null);
 
 /* ================= 工具 ================= */
 function q(s){return document.querySelector(s);}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
 function fmt(n){return (typeof n==="number"&&isFinite(n))?n.toLocaleString("en-US",{maximumFractionDigits:2}):"—";}
 function blank(v){return v===null||v===undefined||v===""||v==="null";}
-function toNum(v){if(typeof v==="number"&&isFinite(v))return v;if(typeof v==="string"){var x=v.replace(/[,，\s¥￥円元]/g,"");if(/^-?\d+(\.\d+)?$/.test(x))return +x;}return null;}
+function toNum(v){if(typeof v==="number"&&isFinite(v))return v;if(typeof v==="string"){var x=v.replace(/[,，\s¥￥円\-]/g,"");if(/^\d+(\.\d+)?$/.test(x))return +x;}return null;}
+function r2(n){return Math.round(n*100)/100;}
 function normDate(v){
  if(blank(v))return "";var s=String(v).trim().replace(/[年月\/.]/g,"-").replace(/日/g,"");
  var m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);if(!m)return String(v).trim();
  return m[1]+"-"+("0"+m[2]).slice(-2)+"-"+("0"+m[3]).slice(-2);
 }
 function validDate(s){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||"");if(!m)return false;var d=new Date(+m[1],+m[2]-1,+m[3]);return d.getFullYear()==+m[1]&&d.getMonth()==+m[2]-1&&d.getDate()==+m[3]&&+m[1]>=2000&&+m[1]<=2100;}
-function normCur(v){if(blank(v))return "";var c=String(v).trim().toUpperCase();if(c==="RMB"||c==="CNH")c="CNY";if(c==="YEN")c="JPY";return /^[A-Z]{3}$/.test(c)?c:"";}
-var DOC_TYPES=["jp_invoice_registration","cn_invoice_number","cn_tax_id","receipt_number","unknown"];
+function normCur(v){if(blank(v))return "";var c=String(v).trim().toUpperCase();if(c==="YEN")c="JPY";if(c==="RMB")c="CNY";return /^[A-Z]{3}$/.test(c)?c:"";}
+function normReg(v){return blank(v)?"":String(v).replace(/[\s\-‐ー－]/g,"").replace(/^ｔ|^t/,"T");}
+function regState(v){v=normReg(v);if(!v)return "none";return /^T\d{13}$/.test(v)?"ok":"bad";}
+function normRate(v){if(blank(v))return "";var m=String(v).match(/(\d+(\.\d+)?)/);return m?m[1]+"%":String(v);}
+function normCo(s){return String(s||"").replace(/[\s　]/g,"").replace(/（[^）]*）|\([^)]*\)/g,"").replace(/株式会社|有限会社|合同会社|㈱|\(株\)|（株）|様|御中|殿/g,"");}
+var KIND_MAP={receipt:"receipt","レシート":"receipt",ryoshusho:"ryoshusho","領収書":"ryoshusho","領収証":"ryoshusho",invoice:"invoice","請求書":"invoice",other:"other"};
 
-/* 一条记录：ai=模型原始值（只读），edit=用户修改值，extra=报销信息（用户填写） */
+/* 一条记录：ai=读取原值（只读），edit=用户修改值，extra=内部整理信息（只由用户填写） */
 function makeRec(fileId,idx,count,ai,extra,src){
  S.seq++;
- return {id:"R"+("0"+S.seq).slice(-2),fileId:fileId,idx:idx,count:count,ai:ai,edit:{},extra:extra||{purpose:"",category:"",claimant:"",company:"",note:""},status:"pend",ack:{},dupAck:"",src:src};
+ return {id:"R"+("0"+S.seq).slice(-2),fileId:fileId,idx:idx,count:count,ai:ai,edit:{},extra:extra||{company:"",claimant:"",purpose:"",category:"",note:""},status:"pend",ack:{},dupAck:"",src:src};
 }
-function val(r,k){return Object.prototype.hasOwnProperty.call(r.edit,k)?r.edit[k]:r.ai[k];}
-function changed(r,k){return Object.prototype.hasOwnProperty.call(r.edit,k)&&String(r.edit[k])!==String(r.ai[k]==null?"":r.ai[k]);}
+function own(o,k){return Object.prototype.hasOwnProperty.call(o,k);}
+function val(r,k){return own(r.edit,k)?r.edit[k]:r.ai[k];}
+function same(a,b){return JSON.stringify(a==null?"":a)===JSON.stringify(b==null?"":b);}
+function changed(r,k){return own(r.edit,k)&&!same(r.edit[k],r.ai[k]);}
 function fileOf(id){for(var i=0;i<S.files.length;i++)if(S.files[i].id===id)return S.files[i];return null;}
 function recById(id){for(var i=0;i<S.recs.length;i++)if(S.recs[i].id===id)return S.recs[i];return null;}
 
-/* 把模型返回值整理成识别字段（不补全任何报销信息） */
+/* 模型返回值 → 读取字段。只做格式整理，不推算任何票面没有的值 */
 function aiFromModel(x){
- var ids=Array.isArray(x.doc_ids)?x.doc_ids.filter(function(d){return d&&!blank(d.value);}):[];
- if(!ids.length&&!blank(x.registration_no))ids=[{type:"unknown",value:x.registration_no}];
- var d0=ids[0]||{type:"",value:""};
- var type=DOC_TYPES.indexOf(d0.type)>=0?d0.type:(d0.value?"unknown":"");
- var badJp=false;
- if(type==="jp_invoice_registration"&&!/^T\d{13}$/.test(String(d0.value).replace(/\s/g,""))){type="unknown";badJp=true;}
- var tax=toNum(x.tax_amount);
- if(tax===null&&Array.isArray(x.tax)){var s=0,ok=false;x.tax.forEach(function(t){var a=toNum(t&&t.amount);if(a!==null){s+=a;ok=true;}});if(ok)tax=s;}
- var unclear=(Array.isArray(x.unclear)?x.unclear:[]).map(function(f){f=String(f||"");if(f==="tax_amount")return "tax";if(f==="doc_ids")return "docNo";return f;}).filter(function(f){return REC_FIELDS.indexOf(f)>=0;});
- return {date:normDate(x.date),merchant:blank(x.merchant)?"":String(x.merchant),total:toNum(x.total),currency:normCur(x.currency),tax:tax,docType:type,docNo:d0.value?String(d0.value):"",unclear:unclear,badJp:badJp,items:blank(x.items)?"":(typeof x.items==="string"?x.items:JSON.stringify(x.items))};
+ var lines=(Array.isArray(x.tax_lines)?x.tax_lines:[]).filter(function(t){return t&&typeof t==="object";}).map(function(t){
+  var b=String(t.amount_basis||"");return {rate:normRate(t.rate),amount:toNum(t.amount),basis:b==="tax_included"?"incl":(b==="tax_excluded"?"excl":"unk"),tax:toNum(t.tax)};
+ }).filter(function(t){return t.rate||t.amount!==null||t.tax!==null;});
+ var map={issuer:"issuer",merchant:"issuer",total:"total",date:"date",currency:"currency",addressee:"addressee",registration_no:"regNo",tax_lines:"taxLines","金額":"total","日付":"date"};
+ var unclear=(Array.isArray(x.unclear)?x.unclear:[]).map(function(f){return map[String(f)]||"";}).filter(Boolean);
+ return {docKind:KIND_MAP[String(x.doc_kind||"").trim()]||(blank(x.doc_kind)?"":"other"),date:normDate(x.date),issuer:blank(x.issuer)?(blank(x.merchant)?"":String(x.merchant)):String(x.issuer),
+  total:toNum(x.total),currency:normCur(x.currency),addressee:blank(x.addressee)?"":String(x.addressee),tadashi:blank(x.tadashi)?"":String(x.tadashi),
+  regNo:normReg(x.registration_no),otherNo:blank(x.other_no)?"":String(x.other_no),taxLines:lines,unclear:unclear};
 }
 
 /* ================= 样例数据（虚构，仅样例模式使用） ================= */
 function sampleSvg(list){
  var w=list.length>1?560:220,h=240,out='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'"><rect width="100%" height="100%" fill="#3a3a3a"/>';
- list.forEach(function(r,i){var ox=12+i*180;out+='<g transform="translate('+ox+',20) rotate('+(i%2?3:-2)+')"><rect width="160" height="190" fill="#fffdf8" stroke="#ccc"/><text x="10" y="28" font-size="15" font-weight="bold" font-family="sans-serif">'+esc(r[0])+'</text><text x="10" y="54" font-size="12" font-family="sans-serif">'+esc(r[1])+'</text><text x="10" y="150" font-size="17" font-weight="bold" font-family="sans-serif"'+(r[3]?' opacity=".35"':'')+'>'+esc(r[2])+'</text><text x="10" y="176" font-size="10" fill="#888" font-family="sans-serif">SAMPLE</text></g>';});
+ list.forEach(function(r,i){var ox=12+i*180;out+='<g transform="translate('+ox+',20) rotate('+(i%2?3:-2)+')"><rect width="160" height="190" fill="#fffdf8" stroke="#ccc"/><text x="10" y="28" font-size="14" font-weight="bold" font-family="sans-serif">'+esc(r[0])+'</text><text x="10" y="54" font-size="12" font-family="sans-serif">'+esc(r[1])+'</text><text x="10" y="150" font-size="17" font-weight="bold" font-family="sans-serif"'+(r[3]?' opacity=".35"':'')+'>'+esc(r[2])+'</text><text x="10" y="176" font-size="10" fill="#888" font-family="sans-serif">SAMPLE</text></g>';});
  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(out+"</svg>");
 }
+var SAMPLE_CO=["青葉商事株式会社（サンプル）","港南物流株式会社（サンプル）"];
 function loadSample(){
  newBatch("sample");
- var J=lang==="ja";
+ S.companies=SAMPLE_CO.slice();
+ /* [日期, 开具方, 金额, 不确定字段, 宛名, 但し書き, 登记号码, 税率明细, 预填用途] */
  var F=[
-  {name:J?"領収書まとめ撮り.jpg":"收据合拍.jpg",r:[["2026-09-03","文具店",1980,null,J?"事務用品":"办公用品"],["2026-09-03",J?"カフェ":"咖啡店",880,null,""],["2026-09-05",J?"駐車場":"停车场",600,["total"],J?"外出時の駐車":"外出停车"]]},
-  {name:J?"交通費明細.png":"交通费明细.png",r:[["2026-09-08",J?"交通費（ICカード）":"交通（IC卡）",1240,null,J?"外出時の交通費":"外出交通"],["2026-09-15",J?"交通費（ICカード）":"交通（IC卡）",2160,null,J?"外出時の交通費":"外出交通"]]},
-  {name:J?"ネット購入_領収書.png":"网购票据.png",r:[["2026-09-12",J?"ネットショップ":"网店",12800,null,J?"事務機器":"办公设备"]]},
-  {name:J?"会食_領収書.jpg":"餐费收据.jpg",r:[["2026-09-20",J?"レストラン":"餐厅",18700,null,""]]},
-  {name:J?"ネット購入_画面キャプチャ.png":"网购票据截图.png",r:[["2026-09-12",J?"ネットショップ":"网店",12800,null,J?"事務機器":"办公设备"]]}
+  {name:"receipts_photo.jpg",r:[["2026-09-03","文具のサクラ堂",1980,null,"","","T2010001000011",[{rate:"10%",amount:1980,basis:"incl",tax:180}],"事務用品"],["2026-09-03","喫茶 こもれび",880,null,"","","",[{rate:"10%",amount:880,basis:"incl",tax:80}],""],["2026-09-05","駐車場 みなと",600,["total"],"","","",[],"外出時の駐車"]]},
+  {name:"supermarket.png",r:[["2026-09-11","スーパー みどり屋",3260,null,"","","T3010001000022",[{rate:"8%",amount:2160,basis:"incl",tax:160},{rate:"10%",amount:1100,basis:"incl",tax:100}],"社内会議用の軽食"]]},
+  {name:"ryoshusho_room.jpg",r:[["2026-09-10","貸会議室 みなと",55000,null,"青葉商事株式会社 様","但し 会議室利用料として","T4010001000033",[{rate:"10%",amount:null,basis:"incl",tax:5000}],""]]},
+  {name:"taxi_0925_a.jpg",r:[["2026-09-25","東和交通",3450,null,"","","T5010001000044",[{rate:"10%",amount:3450,basis:"incl",tax:313}],"顧客訪問の移動"]]},
+  {name:"taxi_0925_b.jpg",r:[["2026-09-25","港南交通",3450,null,"","","T6010001000055",[{rate:"10%",amount:3450,basis:"incl",tax:313}],"倉庫視察の移動"]]}
  ];
  F.forEach(function(f){
   S.fseq++;var id="F"+S.fseq;
-  var img=sampleSvg(f.r.map(function(r){return [r[1],r[0],r[2].toLocaleString("en-US")+" JPY",!!r[3]];}));
-  S.files.push({id:id,name:f.name,preview:img,status:"done",err:"",n:f.r.length});
+  S.files.push({id:id,name:f.name,preview:sampleSvg(f.r.map(function(r){return [r[1],r[0],r[2].toLocaleString("en-US")+" JPY",!!r[3]];})),status:"done",err:"",n:f.r.length});
   f.r.forEach(function(r,i){
-   var ai={date:r[0],merchant:r[1],total:r[2],currency:"JPY",tax:Math.round(r[2]/11),docType:"",docNo:"",unclear:r[3]||[],badJp:false,items:""};
-   S.recs.push(makeRec(id,i+1,f.r.length,ai,{purpose:r[4],category:"",claimant:"",company:"",note:""},"sample"));
+   var ai={docKind:r[4]?"ryoshusho":"receipt",date:r[0],issuer:r[1],total:r[2],currency:"JPY",addressee:r[4],tadashi:r[5],regNo:r[6],otherNo:"",taxLines:r[7],unclear:r[3]||[]};
+   S.recs.push(makeRec(id,i+1,f.r.length,ai,{company:"",claimant:"",purpose:r[8],category:"",note:""},"sample"));
   });
  });
 }
 
-/* ================= 问题检查（每次渲染都按当前数据重算） ================= */
-function FIELD_NAME(k){return L().f[k]||k;}
-function dupPartners(r){
- if(r.status==="excl")return [];
+/* ================= 检查（每次渲染都按当前数据重算） ================= */
+function FN(k){return L().f[k]||k;}
+function dupInfo(r){
+ if(r.status==="excl")return null;
  var d=val(r,"date"),a=toNum(val(r,"total")),c=val(r,"currency");
- if(!validDate(d)||a===null||!c)return [];
- return S.recs.filter(function(o){return o!==r&&o.status!=="excl"&&val(o,"date")===d&&toNum(val(o,"total"))===a&&val(o,"currency")===c;}).map(function(o){return o.id;});
+ if(!validDate(d)||a===null||!c)return null;
+ var ps=S.recs.filter(function(o){return o!==r&&o.status!=="excl"&&val(o,"date")===d&&toNum(val(o,"total"))===a&&val(o,"currency")===c;});
+ if(!ps.length)return null;
+ var t=L().is.dupWhy,why=[t.base],p=ps[0];
+ if(val(p,"issuer")&&val(r,"issuer"))why.push(normCo(val(p,"issuer"))===normCo(val(r,"issuer"))?t.sameIssuer:t.diffIssuer);
+ if(val(p,"regNo")&&val(r,"regNo"))why.push(val(p,"regNo")===val(r,"regNo")?t.sameReg:t.diffReg);
+ return {ids:ps.map(function(o){return o.id;}),key:ps.map(function(o){return o.id;}).sort().join(","),why:why.join("，")};
+}
+function suggestCo(r){
+ var a=val(r,"addressee");if(!a||r.extra.company)return null;
+ var na=normCo(a);if(na.length<2)return null;
+ for(var i=0;i<S.companies.length;i++){var nc=normCo(S.companies[i]);if(nc.length>=2&&(na===nc||na.indexOf(nc)>=0||nc.indexOf(na)>=0))return S.companies[i];}
+ return null;
+}
+/* 一致性检查：只用于提示核对，不会改写任何数值 */
+function taxChecks(r){
+ var t=L(),out=[],lines=val(r,"taxLines")||[],tot=toNum(val(r,"total"));
+ lines.forEach(function(x){
+  if(x.amount!==null&&x.tax!==null&&x.amount===x.tax)out.push({k:"taxEq"+x.rate,tx:t.is.taxEq(x.rate||"?")});
+  var rate=parseFloat(x.rate)/100;
+  if(x.amount!==null&&x.tax!==null&&rate>0&&x.amount!==x.tax){
+   var exp=x.basis==="excl"?x.amount*rate:(x.basis==="incl"?x.amount*rate/(1+rate):null);
+   if(exp!==null&&Math.abs(exp-x.tax)>Math.max(2,x.amount*0.002))out.push({k:"taxRate"+x.rate,tx:t.is.taxRate(x.rate)});
+  }
+ });
+ if(tot!==null&&lines.length&&lines.every(function(x){return x.amount!==null&&x.basis!=="unk";})){
+  var s=0;lines.forEach(function(x){s+=x.basis==="incl"?x.amount:x.amount+(x.tax||0);});
+  if(Math.abs(s-tot)>1)out.push({k:"taxSum",tx:t.is.taxSum});
+ }
+ if(/様|御中|殿/.test(val(r,"issuer")||""))out.push({k:"issuerSama",tx:t.is.issuerSama});
+ var ni=normCo(val(r,"issuer"));
+ if(ni.length>=2&&S.companies.some(function(c){var nc=normCo(c);return nc.length>=2&&(ni===nc||ni.indexOf(nc)>=0||nc.indexOf(ni)>=0);}))out.push({k:"issuerOwn",tx:t.is.issuerOwn});
+ if(regState(val(r,"regNo"))==="bad")out.push({k:"regBad",tx:t.is.regBad});
+ var ad=val(r,"addressee")||"",td=val(r,"tadashi")||"";
+ if(ad&&!/様|御中|殿/.test(ad))out.push({k:"addrNoSama",tx:t.is.addrNoSama});
+ if(td&&!/但/.test(td))out.push({k:"tadashiOdd",tx:t.is.tadashiOdd});
+ return out;
 }
 function issuesOf(r){
  var t=L(),out=[];
- var d=val(r,"date"),m=val(r,"merchant"),a=val(r,"total"),c=val(r,"currency");
+ var d=val(r,"date"),a=val(r,"total"),c=val(r,"currency");
  if(blank(d))out.push({lv:"b",tx:t.is.date});else if(!validDate(d))out.push({lv:"b",tx:t.is.dateBad});
- if(blank(m))out.push({lv:"b",tx:t.is.merchant});
+ if(blank(val(r,"issuer")))out.push({lv:"b",tx:t.is.issuer});
  if(blank(a))out.push({lv:"b",tx:t.is.total});else if(toNum(a)===null||toNum(a)<=0)out.push({lv:"b",tx:t.is.totalBad});
- if(blank(c))out.push({lv:"b",tx:t.is.currency});
- (r.ai.unclear||[]).forEach(function(f){if(!changed(r,f)&&!r.ack[f])out.push({lv:"b",tx:t.is.unclear(FIELD_NAME(f)),ack:f});});
- var dp=dupPartners(r);
- if(dp.length){var key=dp.slice().sort().join(",");if(r.dupAck===key)out.push({lv:"i",tx:t.is.dupOk(dp.join("、"))});else out.push({lv:"b",tx:t.is.dup(dp.join("、")),dup:key});}
+ if(blank(c))out.push({lv:"b",tx:t.is.currency});else if(c!=="JPY")out.push({lv:"w",tx:t.is.otherCur(c)});
+ (r.ai.unclear||[]).forEach(function(f){if(!changed(r,f)&&!r.ack["u:"+f])out.push({lv:"b",tx:t.is.unclear(FN(f)),ack:"u:"+f});});
+ taxChecks(r).forEach(function(x){if(r.ack["c:"+x.k])out.push({lv:"i",tx:x.tx+" — "+t.is.ackDone});else out.push({lv:"b",tx:x.tx,ack:"c:"+x.k});});
+ var di=dupInfo(r);
+ if(di){if(r.dupAck===di.key)out.push({lv:"i",tx:t.is.dupOk(di.ids.join("、"))});else out.push({lv:"b",tx:t.is.dup(di.ids.join("、"),di.why),dup:di.key});}
+ if(!r.extra.company){var sg=suggestCo(r);out.push({lv:"b",tx:t.is.company});if(sg)out.push({lv:"w",tx:t.is.sug(sg,val(r,"addressee")),sug:sg});}
  if(blank(r.extra.purpose))out.push({lv:"b",tx:t.is.purpose});
- if(c==="CNY")out.push({lv:"i",tx:t.is.cny});else if(c&&c!=="JPY")out.push({lv:"i",tx:t.is.otherCur(c)});
- if(r.ai.badJp&&!changed(r,"docType"))out.push({lv:"i",tx:t.is.docBadJp});
- else if(!blank(val(r,"docNo"))&&val(r,"docType")==="unknown")out.push({lv:"w",tx:t.is.docUnknown});
+ var rs=regState(val(r,"regNo"));
+ if(rs==="ok")out.push({lv:"i",tx:t.is.regOk,kohyo:true});else if(rs==="none")out.push({lv:"i",tx:t.is.regNone});
+ if(!(val(r,"taxLines")||[]).length)out.push({lv:"i",tx:t.is.noTax});
  return out;
 }
 function blocking(r){return issuesOf(r).filter(function(i){return i.lv==="b";});}
-/* 已确认的记录如果出现阻断问题（例如重复关系变化），自动退回待复核 */
 function enforce(){S.recs.forEach(function(r){if(r.status==="conf"&&blocking(r).length)r.status="pend";});}
 function counts(){var c={all:S.recs.length,pend:0,conf:0,excl:0};S.recs.forEach(function(r){c[r.status]++;});return c;}
-function totalsByCur(){
- var m={};S.recs.forEach(function(r){if(r.status!=="conf")return;var c=val(r,"currency")||"?";m[c]=m[c]||{sum:0,n:0};m[c].sum+=toNum(val(r,"total"))||0;m[c].n++;});
- Object.keys(m).forEach(function(k){m[k].sum=Math.round(m[k].sum*100)/100;});
- return m;
+/* 按公司、币种分别合计（已确认） */
+function groups(){
+ var g={},order=[];
+ S.recs.forEach(function(r){
+  if(r.status!=="conf")return;var co=r.extra.company,cur=val(r,"currency");
+  if(!g[co]){g[co]={recs:[],tot:{}};order.push(co);}
+  g[co].recs.push(r);g[co].tot[cur]=g[co].tot[cur]||{sum:0,n:0};g[co].tot[cur].sum=r2(g[co].tot[cur].sum+(toNum(val(r,"total"))||0));g[co].tot[cur].n++;
+ });
+ return {g:g,order:order};
 }
 
 /* ================= 渲染 ================= */
@@ -389,7 +492,7 @@ function homeView(){
  return '<section><h1>'+esc(t.h1)+'</h1><p class="sub">'+esc(t.lead)+'</p>'+
  '<div class="ba" aria-hidden="true"><div class="side"><h3>'+esc(t.before)+'</h3><div class="pile">'+
  [[4,8,-8],[30,2,6],[14,30,-3],[44,34,9],[22,54,2]].map(function(p){return '<i style="left:'+p[0]+'px;top:'+p[1]+'px;transform:rotate('+p[2]+'deg)"></i>';}).join("")+
- '</div></div><div class="arrow">→</div><div class="side"><h3>'+esc(t.after)+'</h3><ul class="mini-l"><li><span>09-03</span><span>1,980</span></li><li><span>09-12</span><span>12,800</span></li><li class="w"><span>'+esc(t.heroWarn)+'</span><span>600?</span></li><li><span>…</span><span></span></li><li class="t"><span>'+esc(t.heroTot)+'</span><span>…</span></li></ul></div></div>'+
+ '</div></div><div class="arrow">→</div><div class="side"><h3>'+esc(t.after)+'</h3><ul class="mini-l"><li><span>09-03</span><span>1,980</span></li><li><span>09-11</span><span>3,260</span></li><li class="w"><span>'+esc(t.heroWarn)+'</span><span>600?</span></li><li><span>…</span><span></span></li><li class="t"><span>'+esc(t.heroTot)+'</span><span>…</span></li></ul></div></div>'+
  '<button class="btn" type="button" data-act="upload">'+esc(t.goUpload)+'</button>'+
  '<button class="btn sec" type="button" data-act="sample" style="margin-top:10px">'+esc(t.goSample)+'</button>'+
  '<p class="small" style="margin-top:8px">'+esc(t.heroNote)+'</p>'+
@@ -421,39 +524,61 @@ function upView(){
  return h+'</section>';
 }
 function sumBox(){var t=L(),c=counts();return '<div class="sum"><div><small>'+esc(t.sum.all)+'</small><strong>'+c.all+'</strong></div><div><small>'+esc(t.sum.pend)+'</small><strong>'+c.pend+'</strong></div><div><small>'+esc(t.sum.conf)+'</small><strong>'+c.conf+'</strong></div><div><small>'+esc(t.sum.excl)+'</small><strong>'+c.excl+'</strong></div></div>';}
+function coSelect(attrs,v){
+ var t=L(),list=S.companies.slice();if(v&&list.indexOf(v)<0)list.push(v);
+ return '<select'+attrs+'><option value="">'+esc(t.coPending)+'</option>'+list.map(function(c){return '<option value="'+esc(c)+'"'+(c===v?" selected":"")+'>'+esc(c)+'</option>';}).join("")+'</select>';
+}
+function origHint(r,k,show){
+ var t=L();if(!changed(r,k))return "";
+ return '<div class="orig">'+esc(t.origVal(show))+' · <button class="link" type="button" data-act="restore" data-id="'+r.id+'" data-k="'+k+'">'+esc(t.restore)+'</button></div>';
+}
+function showVal(r,k){var t=L(),v=r.ai[k];if(k==="docKind")return t.kind[v||""];if(k==="total")return v===null?t.origEmpty:fmt(v);return blank(v)?t.origEmpty:v;}
 function inp(r,k,type,extra){
  var t=L(),isRec=REC_FIELDS.indexOf(k)>=0,v=isRec?val(r,k):r.extra[k],chg=isRec&&changed(r,k);
- var lab='<label class="f'+(chg?" chg":"")+(k==="purpose"?" req":"")+'"><span>'+esc(t.f[k])+'</span>';
+ var req=(k==="purpose"||k==="company");
+ var lab='<label class="f'+(chg?" chg":"")+(req?" req":"")+'"><span>'+esc(t.f[k])+'</span>';
  var attrs=' data-rid="'+r.id+'" data-k="'+k+'"'+(r.status==="excl"?" disabled":"");
  var ctl;
- if(type==="cur"){
-  var opts=["","JPY","CNY","USD","EUR"];if(v&&opts.indexOf(v)<0)opts.push(v);
-  ctl='<select'+attrs+'>'+opts.map(function(o){return '<option value="'+o+'"'+(o===(v||"")?" selected":"")+'>'+esc(o||t.curNone)+'</option>';}).join("")+'</select>';
- }else if(type==="doc"){
-  ctl='<select'+attrs+'><option value="">'+esc(t.doc.none)+'</option>'+DOC_TYPES.map(function(o){return '<option value="'+o+'"'+(o===v?" selected":"")+'>'+esc(t.doc[o])+'</option>';}).join("")+'</select>';
- }else if(type==="cat"){
-  ctl='<select'+attrs+'>'+Object.keys(t.cat).map(function(o){return '<option value="'+o+'"'+(o===(v||"")?" selected":"")+'>'+esc(t.cat[o])+'</option>';}).join("")+'</select>';
- }else{
-  ctl='<input'+attrs+' type="text" inputmode="'+(type==="num"?"decimal":"text")+'" value="'+esc(v==null?"":v)+'"'+(extra||"")+'>';
- }
- var orig="";
- if(chg){var ov=r.ai[k];if(k==="docType")ov=ov?t.doc[ov]:"";orig='<div class="orig">'+esc(t.origVal(blank(ov)?t.origEmpty:((k==="total"||k==="tax")?fmt(ov):ov)))+' · <button class="link" type="button" data-act="restore" data-id="'+r.id+'" data-k="'+k+'">'+esc(t.restore)+'</button></div>';}
- return lab+ctl+'</label>'+orig;
+ if(type==="cur"){var opts=["","JPY","USD","EUR","CNY"];if(v&&opts.indexOf(v)<0)opts.push(v);ctl='<select'+attrs+'>'+opts.map(function(o){return '<option value="'+o+'"'+(o===(v||"")?" selected":"")+'>'+esc(o||t.curNone)+'</option>';}).join("")+'</select>';}
+ else if(type==="kind"){ctl='<select'+attrs+'>'+Object.keys(t.kind).map(function(o){return '<option value="'+o+'"'+(o===(v||"")?" selected":"")+'>'+esc(t.kind[o])+'</option>';}).join("")+'</select>';}
+ else if(type==="cat"){ctl='<select'+attrs+'>'+Object.keys(t.cat).map(function(o){return '<option value="'+o+'"'+(o===(v||"")?" selected":"")+'>'+esc(t.cat[o])+'</option>';}).join("")+'</select>';}
+ else if(type==="co"){ctl=coSelect(attrs,v);}
+ else{ctl='<input'+attrs+' type="text" inputmode="'+(type==="num"?"decimal":"text")+'" value="'+esc(v==null?"":v)+'"'+(extra||"")+'>';}
+ return lab+ctl+'</label>'+(isRec?origHint(r,k,showVal(r,k)):"");
+}
+function taxEditor(r){
+ var t=L(),lines=val(r,"taxLines")||[],dis=r.status==="excl"?" disabled":"";
+ var h='<div class="sec-t">'+esc(t.f.taxLines)+(changed(r,"taxLines")?' <span class="orig">'+esc(t.origVal(r.ai.taxLines.length?r.ai.taxLines.map(function(x){return x.rate+" "+fmt(x.amount)+"/"+fmt(x.tax);}).join("；"):t.origEmpty))+' · <button class="link" type="button" data-act="restore" data-id="'+r.id+'" data-k="taxLines">'+esc(t.restore)+'</button></span>':'')+'</div>';
+ if(!lines.length)h+='<p class="small">'+esc(t.tl.none)+'</p>';
+ lines.forEach(function(x,i){
+  var a=' data-rid="'+r.id+'" data-tl="'+i+'"'+dis;
+  h+='<div class="taxl"><label class="f"><span>'+esc(t.tl.rate)+'</span><input'+a+' data-tk="rate" value="'+esc(x.rate)+'"></label>'+
+   '<label class="f"><span>'+esc(t.tl.amount)+'</span><input'+a+' data-tk="amount" inputmode="decimal" value="'+esc(x.amount==null?"":x.amount)+'"></label>'+
+   '<label class="f"><span>'+esc(t.tl.basis)+'</span><select'+a+' data-tk="basis">'+["incl","excl","unk"].map(function(o){return '<option value="'+o+'"'+(o===x.basis?" selected":"")+'>'+esc(t.tl[o])+'</option>';}).join("")+'</select></label>'+
+   '<label class="f tx"><span>'+esc(t.tl.tax)+'</span><input'+a+' data-tk="tax" inputmode="decimal" value="'+esc(x.tax==null?"":x.tax)+'"></label>'+
+   (dis?'':'<button class="x" type="button" data-act="tldel" data-id="'+r.id+'" data-i="'+i+'" aria-label="del">×</button>')+'</div>';
+ });
+ if(!dis)h+='<button class="link" type="button" data-act="tladd" data-id="'+r.id+'">'+esc(t.tl.add)+'</button>';
+ return h;
 }
 function recCard(r){
- var t=L(),f=fileOf(r.fileId),is=issuesOf(r),bl=is.filter(function(i){return i.lv==="b";}),open=!!S.open[r.id];
- var stc=r.status;
- var h='<div class="rec s-'+stc+'" id="card-'+r.id+'"><button class="rh" type="button" data-act="toggle" data-id="'+r.id+'"><img class="thumb" src="'+(f?f.preview:"")+'" alt=""><div class="main"><div class="m">'+esc(r.id)+' · '+esc(val(r,"merchant")||"—")+'</div><div class="meta">'+esc(val(r,"date")||"—")+' · '+esc(f?f.name:"")+(r.count>1?" ("+r.idx+"/"+r.count+")":"")+'</div></div><div><div class="amt">'+fmt(toNum(val(r,"total")))+' '+esc(val(r,"currency")||"?")+'</div><div style="text-align:right"><span class="st '+stc+'">'+esc(t.sum[r.status])+'</span></div></div></button>';
+ var t=L(),f=fileOf(r.fileId),is=issuesOf(r),bl=is.filter(function(i){return i.lv==="b";}),open=!!S.open[r.id],stc=r.status;
+ var co=r.extra.company?'<span class="st co">'+esc(r.extra.company)+'</span>':'<span class="st nco">'+esc(t.f.company+t.coPending)+'</span>';
+ var h='<div class="rec s-'+stc+'" id="card-'+r.id+'"><button class="rh" type="button" data-act="toggle" data-id="'+r.id+'"><img class="thumb" src="'+(f?f.preview:"")+'" alt=""><div class="main"><div class="m">'+esc(r.id)+' · '+esc(val(r,"issuer")||"—")+'</div><div class="meta">'+esc(val(r,"date")||"—")+' · '+esc(f?f.name:"")+(r.count>1?" ("+r.idx+"/"+r.count+")":"")+'</div><div style="margin-top:2px">'+co+'</div></div><div><div class="amt">'+fmt(toNum(val(r,"total")))+' '+esc(val(r,"currency")||"?")+'</div><div style="text-align:right"><span class="st '+stc+'">'+esc(t.sum[r.status])+'</span></div></div></button>';
  if(r.status!=="excl"){
-  h+='<ul class="issues">'+(is.length?is.map(function(i){return '<li class="'+i.lv+'">'+(i.lv==="b"?"● ":"・")+esc(i.tx)+'</li>';}).join(""):'<li class="i">・'+esc(t.is.noIssue)+'</li>')+'</ul>';
+  var shown=is.filter(function(i){return i.lv!=="i"||open;});
+  h+='<ul class="issues">'+(shown.length?shown.map(function(i){return '<li class="'+i.lv+'">'+(i.lv==="b"?"● ":"・")+esc(i.tx)+(i.kohyo?' <a href="'+KOHYO+'" target="_blank" rel="noopener">'+esc(t.kohyo)+'</a>':'')+'</li>';}).join(""):'<li class="i">・'+esc(t.is.noIssue)+'</li>')+'</ul>';
  }
  if(open){
   h+='<div class="rb"><div class="src"><img class="thumb" src="'+(f?f.preview:"")+'" alt="" data-img="'+r.fileId+'" data-cap="'+esc(t.inImg(r.idx,r.count))+'"><div class="small">'+esc(f?f.name:"")+'<br>'+esc(t.inImg(r.idx,r.count))+'<br><button class="link" type="button" data-img="'+r.fileId+'" data-cap="'+esc(t.inImg(r.idx,r.count))+'">'+esc(t.viewImg)+'</button></div></div>'+
-  '<div class="sec-t">'+esc(t.recogLbl)+'</div><div class="grid">'+inp(r,"date","txt",' placeholder="'+t.ph.date+'"')+inp(r,"merchant","txt")+inp(r,"total","num")+inp(r,"currency","cur")+inp(r,"tax","num")+inp(r,"docType","doc")+inp(r,"docNo","txt")+'</div>'+
-  (r.ai.items?'<p class="small" style="margin-top:6px">'+esc(r.ai.items)+'</p>':'')+
-  '<div class="sec-t">'+esc(t.extraLbl)+'</div><div class="grid">'+inp(r,"purpose","txt",' placeholder="'+esc(t.ph.purpose)+'"')+inp(r,"category","cat")+inp(r,"claimant","txt",' list="dl-claimant"')+inp(r,"company","txt",' list="dl-company"')+inp(r,"note","txt")+'</div>';
+  '<div class="sec-t">'+esc(t.extraLbl)+'</div><div class="grid">'+inp(r,"company","co")+inp(r,"purpose","txt",' placeholder="'+esc(t.ph.purpose)+'"')+inp(r,"claimant","txt",' list="dl-claimant"')+inp(r,"category","cat")+inp(r,"note","txt")+'</div>'+
+  '<div class="sec-t">'+esc(t.recogLbl)+'</div><div class="grid">'+inp(r,"docKind","kind")+inp(r,"date","txt",' placeholder="'+t.ph.date+'"')+inp(r,"issuer","txt")+inp(r,"total","num")+inp(r,"currency","cur")+inp(r,"regNo","txt",' placeholder="'+esc(t.ph.reg)+'"')+inp(r,"addressee","txt")+inp(r,"tadashi","txt")+inp(r,"otherNo","txt")+'</div>'+taxEditor(r);
   var acts='';
-  if(r.status!=="excl")is.forEach(function(i){if(i.dup)acts+='<button class="btn sec mini" type="button" data-act="notdup" data-id="'+r.id+'" data-key="'+i.dup+'">'+esc(t.notDup)+'</button>';if(i.ack)acts+='<button class="btn sec mini" type="button" data-act="ack" data-id="'+r.id+'" data-k="'+i.ack+'">'+esc(t.ackUnclear(FIELD_NAME(i.ack)))+'</button>';});
+  if(r.status!=="excl")is.forEach(function(i){
+   if(i.sug)acts+='<button class="btn sec mini" type="button" data-act="usesug" data-id="'+r.id+'" data-co="'+esc(i.sug)+'">'+esc(t.useSug(i.sug))+'</button>';
+   if(i.dup)acts+='<button class="btn sec mini" type="button" data-act="notdup" data-id="'+r.id+'" data-key="'+i.dup+'">'+esc(t.notDup)+'</button>';
+   if(i.ack)acts+='<button class="btn sec mini" type="button" data-act="ack" data-id="'+r.id+'" data-k="'+esc(i.ack)+'">'+esc(t.ackBtn)+'：'+esc(i.tx.length>18?i.tx.slice(0,18)+"…":i.tx)+'</button>';
+  });
   if(r.status==="pend")acts+='<button class="btn ok" type="button" data-act="confirm" data-id="'+r.id+'"'+(bl.length?" disabled":"")+'>'+esc(t.confirm)+'</button><button class="btn warn" type="button" data-act="exclude" data-id="'+r.id+'">'+esc(t.exclude)+'</button>';
   if(r.status==="conf")acts+='<button class="btn sec" type="button" data-act="unconfirm" data-id="'+r.id+'">'+esc(t.unconfirm)+'</button>';
   if(r.status==="excl")acts+='<button class="btn sec" type="button" data-act="unexclude" data-id="'+r.id+'">'+esc(t.unexclude)+'</button>';
@@ -461,45 +586,46 @@ function recCard(r){
  }
  return h+'</div>';
 }
-function datalists(){
- var cl={},co={};S.recs.forEach(function(r){if(r.extra.claimant)cl[r.extra.claimant]=1;if(r.extra.company)co[r.extra.company]=1;});
- var dl=function(id,o){return '<datalist id="'+id+'">'+Object.keys(o).map(function(v){return '<option value="'+esc(v)+'">';}).join("")+'</datalist>';};
- return dl("dl-claimant",cl)+dl("dl-company",co);
+function coPanel(){
+ var t=L();
+ return '<div class="panel"><h3>'+esc(t.coH)+'</h3>'+
+  '<label class="f"><span>'+esc(t.coList)+'</span></label><div class="chips">'+(S.companies.length?S.companies.map(function(c,i){return '<span class="chip">'+esc(c)+'<button type="button" data-act="codel" data-i="'+i+'" aria-label="remove">×</button></span>';}).join(""):'<span class="small">'+esc(t.coNone)+'</span>')+'</div>'+
+  '<div class="row" style="gap:6px"><input id="coNew" style="flex:3 1 200px;border:1px solid #c5d0d8;border-radius:8px;padding:8px;min-height:40px" placeholder="'+esc(t.coPh)+'"><button class="btn sec mini" type="button" data-act="coadd" style="flex:0 0 auto">'+esc(t.coAdd)+'</button></div>'+
+  '<div class="grid" style="margin-top:8px"><label class="f"><span>'+esc(t.coDefault)+'</span>'+coSelect(' data-def="co"',S.defCo)+'</label>'+
+  '<label class="f"><span>'+esc(t.claimDefault)+'</span><input data-def="claim" list="dl-claimant" value="'+esc(S.defClaim)+'"></label></div>'+
+  '<div class="row" style="margin-top:8px;gap:6px"><button class="btn sec mini" type="button" data-act="applyEmpty">'+esc(t.applyEmpty)+'</button><button class="btn sec mini" type="button" data-act="applyAll">'+esc(t.applyAll)+'</button></div></div>';
 }
+function datalists(){var cl={};S.recs.forEach(function(r){if(r.extra.claimant)cl[r.extra.claimant]=1;});if(S.defClaim)cl[S.defClaim]=1;return '<datalist id="dl-claimant">'+Object.keys(cl).map(function(v){return '<option value="'+esc(v)+'">';}).join("")+'</datalist>';}
 function reviewView(){
  var t=L();
  var h='<section>'+stepper(1)+badge()+'<h2>'+esc(t.rvH)+'</h2><p class="sub">'+esc(t.rvP)+'</p>'+sumBox();
  if(S.mode==="sample")h+='<div class="note">'+esc(t.sampleFiles)+'</div><button class="btn sec" type="button" data-act="sampleFill">'+esc(t.sampleFill)+'</button>';
- h+='<div class="panel"><h3>'+esc(t.bulkH)+'</h3><div class="grid">'+
-  '<label class="f"><span>'+esc(t.f.company)+'</span><input data-bulk="company" list="dl-company" value="'+esc(S.bulk.company)+'"></label>'+
-  '<label class="f"><span>'+esc(t.f.claimant)+'</span><input data-bulk="claimant" list="dl-claimant" value="'+esc(S.bulk.claimant)+'"></label>'+
-  '<label class="f"><span>'+esc(t.f.category)+'</span><select data-bulk="category">'+Object.keys(t.cat).map(function(o){return '<option value="'+o+'"'+(o===S.bulk.category?" selected":"")+'>'+esc(t.cat[o])+'</option>';}).join("")+'</select></label>'+
-  '</div><div style="margin-top:8px"><button class="btn sec mini" type="button" data-act="bulk">'+esc(t.bulkApply)+'</button></div></div>';
- h+=S.recs.map(recCard).join("")+datalists();
+ h+=coPanel()+S.recs.map(recCard).join("")+datalists();
  h+='<div class="row" style="margin-top:12px"><button class="btn" type="button" data-act="result">'+esc(t.toResult)+'</button></div>';
  if(S.mode==="live")h+='<div class="row" style="margin-top:10px"><button class="btn sec" type="button" data-act="upview">'+esc(t.addFiles)+'</button></div>';
  h+='<p class="small" style="margin-top:10px">'+esc(t.keepNote)+' <button class="link" type="button" data-act="clear">'+esc(t.clear)+'</button></p>';
  return h+'</section>';
 }
 function resultView(){
- var t=L(),c=counts(),tot=totalsByCur(),conf=S.recs.filter(function(r){return r.status==="conf";});
+ var t=L(),c=counts(),G=groups();
  var h='<section>'+stepper(2)+badge()+'<h2>'+esc(t.resH)+'</h2><p class="sub">'+esc(t.resP)+'</p>'+sumBox();
  if(c.pend)h+='<div class="note">'+esc(t.resPend(c.pend))+'</div>';
- if(!conf.length)h+='<div class="note info">'+esc(t.resNone)+'</div>';
- else{
-  h+='<div class="tot">'+Object.keys(tot).sort().map(function(k){return '<div><small>'+esc(t.totLbl(k,tot[k].n))+'</small><strong>'+fmt(tot[k].sum)+'</strong></div>';}).join("")+'</div>';
-  h+='<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>'+esc(t.th.no)+'</th><th>'+esc(t.th.date)+'</th><th>'+esc(t.th.merchant)+'</th><th class="r">'+esc(t.th.amount)+'</th></tr></thead><tbody>'+
-  conf.map(function(r){var f=fileOf(r.fileId);var ex=[r.extra.category?t.cat[r.extra.category]:"",r.extra.claimant,r.extra.company].filter(Boolean).join(" · ");
-   return '<tr><td>'+esc(r.id)+'</td><td>'+esc(val(r,"date"))+'</td><td><b>'+esc(val(r,"merchant"))+'</b><div>'+esc(r.extra.purpose)+(r.extra.note?'（'+esc(r.extra.note)+'）':'')+'</div>'+(ex?'<div class="s2">'+esc(ex)+'</div>':'')+'<div class="s2">'+esc(f?f.name:"")+'</div></td><td class="r">'+fmt(toNum(val(r,"total")))+' '+esc(val(r,"currency"))+'</td></tr>';}).join("")+'</tbody></table></div>';
- }
- h+='<div class="row" style="margin-top:12px"><button class="btn" type="button" data-act="csv"'+(conf.length?"":" disabled")+'>'+esc(t.exportOk)+'</button></div>'+
+ if(!G.order.length)h+='<div class="note info">'+esc(t.resNone)+'</div>';
+ G.order.forEach(function(co){
+  var g=G.g[co];
+  h+='<div class="cogrp"><h3>'+esc(co)+Object.keys(g.tot).sort().map(function(cur){return '<small>'+esc(t.coTot(cur,g.tot[cur].n,fmt(g.tot[cur].sum)))+'</small>';}).join("")+'</h3>'+
+  '<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>'+esc(t.th.no)+'</th><th>'+esc(t.th.date)+'</th><th>'+esc(t.th.issuer)+'</th><th class="r">'+esc(t.th.amount)+'</th></tr></thead><tbody>'+
+  g.recs.map(function(r){var f=fileOf(r.fileId);var ex=[r.extra.category?t.cat[r.extra.category]:"",r.extra.claimant].filter(Boolean).join(" · ");
+   return '<tr><td>'+esc(r.id)+'</td><td>'+esc(val(r,"date"))+'</td><td><b>'+esc(val(r,"issuer"))+'</b><div>'+esc(r.extra.purpose)+(r.extra.note?'（'+esc(r.extra.note)+'）':'')+'</div>'+(ex?'<div class="s2">'+esc(ex)+'</div>':'')+'<div class="s2">'+esc(f?f.name:"")+'</div></td><td class="r">'+fmt(toNum(val(r,"total")))+' '+esc(val(r,"currency"))+'</td></tr>';}).join("")+'</tbody></table></div></div>';
+ });
+ h+='<div class="row" style="margin-top:12px"><button class="btn" type="button" data-act="csv"'+(G.order.length?"":" disabled")+'>'+esc(t.exportOk)+'</button></div><p class="small" style="margin-top:6px">'+esc(t.exportNote)+'</p>'+
   '<div class="row" style="margin-top:10px"><button class="btn sec" type="button" data-act="back">'+esc(t.backReview)+'</button>'+
   (S.mode==="live"?'<button class="btn sec" type="button" data-act="upview">'+esc(t.addFiles)+'</button>':'')+'</div>'+
   '<p class="small" style="margin-top:10px"><button class="link" type="button" data-act="csvDraft">'+esc(t.exportDraft)+'</button> · <button class="link" type="button" data-act="clear">'+esc(t.clear)+'</button></p><p class="small">'+esc(t.keepNote)+'</p>';
  return h+'</section>';
 }
 
-/* ================= 上传与识别 ================= */
+/* ================= 上传与读取 ================= */
 function toJpeg(file){
  return new Promise(function(res,rej){
   var url=URL.createObjectURL(file),img=new Image();
@@ -519,8 +645,7 @@ function addFiles(list){
   var f=list[i];
   if(!/^image\/(jpeg|png|webp)$/.test(f.type)){skipped.push(f.name);continue;}
   if(S.files.length>=MAX_FILES){toast(t.tooMany);break;}
-  S.fseq++;
-  S.files.push({id:"F"+S.fseq,name:f.name,preview:"",status:"wait",err:"",n:0,_file:f});
+  S.fseq++;S.files.push({id:"F"+S.fseq,name:f.name,preview:"",status:"wait",err:"",n:0,_file:f});
  }
  if(skipped.length)toast(t.notImg+skipped.join("、"));
  render();pump();
@@ -530,49 +655,55 @@ function pump(){
  while(active<CONCURRENCY){
   var next=null;for(var i=0;i<S.files.length;i++)if(S.files[i].status==="wait"){next=S.files[i];break;}
   if(!next)return;
-  active++;
-  recognize(next).then(function(){active--;if(S.view==="up")render();pump();});
+  active++;recognize(next).then(function(){active--;if(S.view==="up")render();pump();});
  }
 }
 function recognize(f){
  f.status="proc";if(S.view==="up")render();
+ var batch=S;
  var p=f.dataUrl?Promise.resolve(f.dataUrl):toJpeg(f._file).then(function(d){f.dataUrl=d;f.preview=d;return d;});
  return p.then(function(dataUrl){
   var ctl=window.AbortController?new AbortController():null,timer=setTimeout(function(){if(ctl)ctl.abort();},45000);
   return fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image:dataUrl}),signal:ctl?ctl.signal:undefined})
    .then(function(r){clearTimeout(timer);return r.json().catch(function(){return {error:"other"};}).then(function(j){return {ok:r.ok,j:j};});});
  }).then(function(x){
-  if(!fileOf(f.id))return; /* 识别期间已被移除或清空 */
+  if(batch!==S||!fileOf(f.id))return; /* 已清空或已移除 */
   if(x.ok&&x.j&&Array.isArray(x.j.receipts)){
    var rs=x.j.receipts.filter(function(r){return r&&typeof r==="object";});
    if(!rs.length){f.status="fail";f.err="empty";return;}
-   /* 重试时先去掉这个文件之前的记录，保证不重复 */
-   S.recs=S.recs.filter(function(r){return r.fileId!==f.id;});
+   S.recs=S.recs.filter(function(r){return r.fileId!==f.id;}); /* 重试时不重复 */
    rs.forEach(function(m,i){S.recs.push(makeRec(f.id,i+1,rs.length,aiFromModel(m),null,"live"));});
    f.status="done";f.n=rs.length;f.err="";
   }else{f.status="fail";f.err=(x.j&&x.j.error)||"other";}
- }).catch(function(e){if(fileOf(f.id)){f.status="fail";f.err=(e&&e.message==="decode")?"bad_image":"net";}});
+ }).catch(function(e){if(batch===S&&fileOf(f.id)){f.status="fail";f.err=(e&&e.message==="decode")?"bad_image":"net";}});
 }
 
 /* ================= CSV ================= */
 function cell(v){
- if(typeof v==="number")return String(v);
+ if(typeof v==="number")return String(r2(v));
  v=String(v==null?"":v);
  if(/^[=+\-@\t\r]/.test(v))v="'"+v; /* 防止表格公式注入 */
  return /[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;
 }
 function exportCsv(draft){
- var t=L(),rows=[],list=S.recs.filter(function(r){return draft?true:r.status==="conf";});
+ var t=L(),rows=[];
+ var list=draft?S.recs.slice():[];
+ if(!draft){var G=groups();G.order.forEach(function(co){list=list.concat(G.g[co].recs);});}
  if(!list.length)return;
  if(draft)rows.push([t.draftMark]);
  rows.push(t.csvHead);
  list.forEach(function(r){
-  var f=fileOf(r.fileId),ch=REC_FIELDS.filter(function(k){return changed(r,k);}).map(FIELD_NAME).join(" / ");
-  var a=toNum(val(r,"total")),tx=toNum(val(r,"tax")),dt=val(r,"docType");
-  rows.push([r.id,t.csvSrc[r.src],f?f.name:"",r.idx+"/"+r.count,val(r,"date"),val(r,"merchant"),a===null?(val(r,"total")==null?"":val(r,"total")):a,val(r,"currency"),tx===null?(val(r,"tax")==null?"":val(r,"tax")):tx,
-   dt?t.doc[dt]:"",val(r,"docNo"),r.extra.purpose,r.extra.category?t.cat[r.extra.category]:"",r.extra.claimant,r.extra.company,r.extra.note,t.csvStat[r.status],ch]);
+  var f=fileOf(r.fileId),lines=val(r,"taxLines")||[];
+  var L10=lines.filter(function(x){return x.rate==="10%";})[0],L8=lines.filter(function(x){return x.rate==="8%";})[0];
+  var others=lines.filter(function(x){return x!==L10&&x!==L8;}).map(function(x){return x.rate+" "+(x.amount==null?"":x.amount)+"("+t.tl[x.basis]+") / "+(x.tax==null?"":x.tax);}).join("; ");
+  var lc=function(x,k){if(!x)return "";if(k==="basis")return t.tl[x.basis];return x[k]==null?"":x[k];};
+  var ch=REC_FIELDS.filter(function(k){return changed(r,k);}).map(FN).join(" / ");
+  var tot=toNum(val(r,"total"));
+  rows.push([r.id,t.csvSrc[r.src],f?f.name:"",r.idx+"/"+r.count,t.kind[val(r,"docKind")||""],val(r,"date"),val(r,"issuer"),tot===null?"":tot,val(r,"currency"),val(r,"addressee"),val(r,"tadashi"),val(r,"regNo"),t.regStat[regState(val(r,"regNo"))],val(r,"otherNo"),
+   lc(L10,"amount"),lc(L10,"basis"),lc(L10,"tax"),lc(L8,"amount"),lc(L8,"basis"),lc(L8,"tax"),others,
+   r.extra.company,r.extra.claimant,r.extra.purpose,r.extra.category?t.cat[r.extra.category]:"",r.extra.note,t.csvStat[r.status],ch]);
  });
- if(!draft){var tot=totalsByCur();Object.keys(tot).sort().forEach(function(c){rows.push(["",t.csvTot(c),"","","","",tot[c].sum,c]);});}
+ if(!draft){var G2=groups();G2.order.forEach(function(co){Object.keys(G2.g[co].tot).sort().forEach(function(cur){var row=["",t.csvTot(co,cur),"","","","","",G2.g[co].tot[cur].sum,cur];rows.push(row);});});}
  var body="﻿"+rows.map(function(r){return r.map(cell).join(",");}).join("\r\n");
  S.lastCsv=body;
  try{
@@ -593,6 +724,16 @@ function showImg(fid,cap){
 }
 function hasData(){return S.mode==="live"&&S.files.length>0;}
 function clearAll(){newBatch(null);S.view="home";render();window.scrollTo(0,0);toast(L().cleared);}
+function touch(r){if(r.status==="conf"){r.status="pend";toast(L().reConfirm);}}
+function applyDefaults(overwrite){
+ var t=L(),n=0;
+ if(!S.defCo&&!S.defClaim){toast(t.applyNone);return;}
+ keepScroll(function(){S.recs.forEach(function(r){if(r.status!=="pend")return;var c=false;
+  if(S.defCo&&(overwrite||!r.extra.company)){r.extra.company=S.defCo;c=true;}
+  if(S.defClaim&&(overwrite||!r.extra.claimant)){r.extra.claimant=S.defClaim;c=true;}
+  if(c)n++;});});
+ toast(t.applied(n));
+}
 document.addEventListener("click",function(e){
  var el=e.target.closest("[data-img]");
  if(el&&!el.closest(".rh")){showImg(el.getAttribute("data-img"),el.getAttribute("data-cap"));return;}
@@ -618,22 +759,26 @@ document.addEventListener("click",function(e){
   case "unexclude":if(r)keepScroll(function(){r.status="pend";S.open[id]=true;});break;
   case "notdup":if(r)keepScroll(function(){r.dupAck=b.getAttribute("data-key");});break;
   case "ack":if(r)keepScroll(function(){r.ack[b.getAttribute("data-k")]=true;});break;
-  case "restore":if(r)keepScroll(function(){delete r.edit[b.getAttribute("data-k")];if(r.status==="conf"){r.status="pend";toast(t.reConfirm);}});break;
-  case "bulk":
-   var vals={};["company","claimant","category"].forEach(function(k){if(S.bulk[k])vals[k]=S.bulk[k];});
-   if(!Object.keys(vals).length){toast(t.bulkNone);return;}
-   var n=0;keepScroll(function(){S.recs.forEach(function(x){if(x.status==="pend"){Object.keys(vals).forEach(function(k){x.extra[k]=vals[k];});n++;}});});
-   toast(t.bulkDone(n));break;
+  case "usesug":if(r)keepScroll(function(){r.extra.company=b.getAttribute("data-co");});break;
+  case "restore":if(r)keepScroll(function(){delete r.edit[b.getAttribute("data-k")];touch(r);});break;
+  case "tladd":if(r)keepScroll(function(){var l=JSON.parse(JSON.stringify(val(r,"taxLines")||[]));l.push({rate:"10%",amount:null,basis:"incl",tax:null});r.edit.taxLines=l;touch(r);});break;
+  case "tldel":if(r)keepScroll(function(){var l=JSON.parse(JSON.stringify(val(r,"taxLines")||[]));l.splice(+b.getAttribute("data-i"),1);r.edit.taxLines=l;if(same(l,r.ai.taxLines))delete r.edit.taxLines;touch(r);});break;
+  case "coadd":var v=(q("#coNew").value||"").trim();if(v&&S.companies.indexOf(v)<0)keepScroll(function(){S.companies.push(v);});break;
+  case "codel":keepScroll(function(){var c=S.companies[+b.getAttribute("data-i")];S.companies.splice(+b.getAttribute("data-i"),1);if(S.defCo===c)S.defCo="";});break;
+  case "applyEmpty":applyDefaults(false);break;
+  case "applyAll":applyDefaults(true);break;
   case "sampleFill":
    if(S.mode!=="sample")return;
    keepScroll(function(){
     S.recs.forEach(function(x){
      if(x.status!=="pend")return;
-     if(!x.extra.purpose){if(x.ai.total===880){x.extra.purpose=lang==="ja"?"社内打ち合わせ用の飲料":"内部会议茶点";}else if(x.ai.total===18700){x.extra.purpose=lang==="ja"?"取引先との会食":"客户会餐";x.extra.note=lang==="ja"?"取引先A社2名・当社1名":"客户A公司2人、本公司1人";}}
-     (x.ai.unclear||[]).forEach(function(k){x.ack[k]=true;});
+     if(!x.extra.purpose){if(x.ai.total===880)x.extra.purpose=lang==="ja"?"社内打ち合わせ用の飲料":"内部会议用饮料";else if(x.ai.total===55000)x.extra.purpose=lang==="ja"?"取引先との定例会議":"与客户的例会";}
+     if(!x.extra.company)x.extra.company=(x.ai.issuer.indexOf("港南")>=0||x.ai.total===600)?SAMPLE_CO[1]:SAMPLE_CO[0];
+     if(!x.extra.claimant)x.extra.claimant=lang==="ja"?"山田（サンプル）":"山田（样例）";
+     (x.ai.unclear||[]).forEach(function(k){x.ack["u:"+k]=true;});
+     taxChecks(x).forEach(function(c){x.ack["c:"+c.k]=true;});
+     var di=dupInfo(x);if(di)x.dupAck=di.key;
     });
-    var dups=S.recs.filter(function(x){return x.status==="pend"&&dupPartners(x).length;});
-    if(dups.length)dups[dups.length-1].status="excl";
     S.recs.forEach(function(x){if(x.status==="pend"&&!blocking(x).length)x.status="conf";});
    });
    toast(t.sampleFilled);break;
@@ -643,32 +788,39 @@ document.addEventListener("click",function(e){
   case "closeimg":q("#ovl").innerHTML="";break;
  }
 });
-/* 输入：随打随存（不重绘，以免打断输入）；离开输入框时重算问题并重绘 */
+/* 输入：随打随存（不重绘）；离开输入框时重算并重绘 */
 function setField(r,k,v){
- if(EXTRA_FIELDS.indexOf(k)>=0)r.extra[k]=v;
+ if(EXTRA_FIELDS.indexOf(k)>=0){r.extra[k]=v;}
  else{
-  var nv=(k==="date"||k==="total"||k==="tax"||k==="docNo")?String(v).trim():v;
-  var ov=r.ai[k];
-  if(String(nv)===String(ov==null?"":ov))delete r.edit[k];
-  else r.edit[k]=((k==="total"||k==="tax")&&toNum(nv)!==null)?toNum(nv):nv;
+  var nv=String(v);
+  if(k==="total")nv=toNum(nv)!==null?toNum(nv):nv.trim();
+  else if(k==="regNo")nv=normReg(nv);
+  else if(k==="date")nv=nv.trim();
+  if(same(nv,r.ai[k]))delete r.edit[k];else r.edit[k]=nv;
  }
  if(r.status==="conf"){r.status="pend";r._re=true;}
 }
-document.addEventListener("input",function(e){
- var el=e.target;
- if(el.getAttribute&&el.getAttribute("data-bulk")){S.bulk[el.getAttribute("data-bulk")]=el.value;return;}
+function setTax(r,i,k,v){
+ var l=JSON.parse(JSON.stringify(val(r,"taxLines")||[]));if(!l[i])return;
+ l[i][k]=(k==="amount"||k==="tax")?(String(v).trim()===""?null:toNum(v)):(k==="rate"?normRate(v):v);
+ if(same(l,r.ai.taxLines))delete r.edit.taxLines;else r.edit.taxLines=l;
+ if(r.status==="conf"){r.status="pend";r._re=true;}
+}
+function onEdit(el,commit){
+ var def=el.getAttribute&&el.getAttribute("data-def");
+ if(def){if(def==="co")S.defCo=el.value;else S.defClaim=el.value;return;}
  var id=el.getAttribute&&el.getAttribute("data-rid"),r=id&&recById(id);if(!r)return;
- setField(r,el.getAttribute("data-k"),el.value);
-});
+ if(el.hasAttribute("data-tl")){if(commit)setTax(r,+el.getAttribute("data-tl"),el.getAttribute("data-tk"),el.value);}
+ else setField(r,el.getAttribute("data-k"),el.value);
+ if(commit){if(r._re){r._re=false;toast(L().reConfirm);}keepScroll(function(){});}
+}
+document.addEventListener("input",function(e){if(e.target.hasAttribute&&e.target.hasAttribute("data-tl"))return;onEdit(e.target,false);});
 document.addEventListener("change",function(e){
  var el=e.target;
  if(el.id==="files"){var fl=el.files;addFiles(fl?Array.prototype.slice.call(fl):[]);el.value="";return;}
- if(el.getAttribute("data-bulk")){S.bulk[el.getAttribute("data-bulk")]=el.value;return;}
- var id=el.getAttribute("data-rid"),r=id&&recById(id);if(!r)return;
- setField(r,el.getAttribute("data-k"),el.value);
- if(r._re){r._re=false;toast(L().reConfirm);}
- keepScroll(function(){});
+ onEdit(el,true);
 });
+document.addEventListener("keydown",function(e){if(e.target&&e.target.id==="coNew"&&e.key==="Enter"){e.preventDefault();var b=q('[data-act=coadd]');if(b)b.click();}});
 window.addEventListener("beforeunload",function(e){if(hasData()){e.preventDefault();e.returnValue=L().leaveQ;return L().leaveQ;}});
 function setLang(lg){
  if(!T[lg])return;
@@ -680,7 +832,7 @@ var param=null;try{param=new URL(location.href).searchParams.get("lang");}catch(
 if(param==="ja"||param==="zh")lang=param;
 else{var nl=(navigator.languages&&navigator.languages[0])||navigator.language||"zh";lang=/^ja/i.test(nl)?"ja":"zh";}
 /* 测试辅助：只读导出当前状态（不含图片数据） */
-window.__demoState=function(){return JSON.parse(JSON.stringify({view:S.view,mode:S.mode,files:S.files.map(function(f){return {id:f.id,name:f.name,status:f.status,err:f.err,n:f.n};}),recs:S.recs,lastCsv:S.lastCsv||""}));};
+window.__demoState=function(){return JSON.parse(JSON.stringify({view:S.view,mode:S.mode,companies:S.companies,files:S.files.map(function(f){return {id:f.id,name:f.name,status:f.status,err:f.err,n:f.n};}),recs:S.recs,lastCsv:S.lastCsv||""}));};
 render();
 })();
 </script>
